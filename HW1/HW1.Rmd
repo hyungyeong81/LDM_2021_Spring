@@ -1,0 +1,117 @@
+---
+title: "2021-1 대용량자료관리및시각화 HW1"
+author: "2019313106 홍현경"
+date: "3/24/2021"
+output: html_document
+---
+## Setting
+```{r SetDir, echo=FALSE}
+setwd("/Users/hyungyeonghong/Desktop/2021-1/LDM")
+```
+
+### 패키지 불러오기
+* 과제 수행을 위해 필요한 패키지인 tidyverse를 불러옵니다.
+```{r LoadPackages, message=FALSE}
+library(tidyverse)
+```
+
+### 파일 불러오기
+* 과제 수행을 위해 billboard.csv 파일을 불러옵니다.  
+* billboard.csv 파일을 불러온 후 head()를 이용하여 데이터를 확인합니다.
+```{r ReadBillboard, message=FALSE}
+data <- read_csv("billboard.csv")
+data %>% head(10)
+```
+
+data(billboard.csv) 확인 결과 주차별 순위를 나타내는 열들의 이름은 특정 원소의 이름으로 변환되어야 함을 알 수 있습니다.
+
+### 데이터의 결측치 확인하기
+* 데이터의 결측치를 추가로 확인하였습니다.
+* 변수별로 결측치를 확인하기 위해 lapply()를 이용하여 각 변수에 is.na()를 적용하였습니다.
+* is.na()의 결과는 logical vector이므로 lapply를 이용하여 각 변수에 sum()을 적용하여 변수별 결측치 개수를 확인했습니다. 
+```{r DataStr}
+data %>% lapply(is.na) %>% lapply(sum)
+```
+
+## Manipulating Data
+
+### gather() 이용하여 데이터 정리
+* gather()을 이용하여 데이터를 정리합니다.  
+* x1st.week ~ x76th.week 열들을 gather을 이용하여 wk라는 새로운 변수의 요소로 집어넣습니다.  
+* 기존 x1st.week ~ x76th.week 열들의 값은 rank라는 새로운 변수의 요소로 집어넣습니다.  
+* x1st.week ~ x76th.week 변수에 결측치가 많음을 위에서 확인했습니다.
+* gather()을 이용하여 x1st.week ~ x76th.week를 week 변수의 요소로 넣었기 떄문에 해당 주차에 차트 아웃되어 rank값이 없는 경우 삭제를 해 줘도 무방하다고 판단했습니다.
+* 따라서, na.rm=TRUE를 이용하여 결측치를 제거하였습니다.
+```{r WeekGather}
+data <- data %>% gather(key="wk", value="rank", x1st.week:x76th.week, na.rm=TRUE)
+# (x1st.week:x76th.week) == contains("week")
+data %>% head(10)
+```
+
+x1st.week ~ x76th.week 열들이 변수 wk의 요소로 들어가 데이터가 정리된 것을 확인할 수 있습니다.
+
+### mutate(), str_replace()와 regexp를 이용하여 값 바꾸기 (변수: wk)
+* 우선 wk변수의 값들에서 숫자만 뽑아내기 위해 mutate()내에서 parse_number()를 사용하였습니다.
+* 원래 extract_numeric()을 사용하려 하였으나 deprecated이기 때문에 대안으로 제시된 parse_number()를 사용하였습니다.
+* 숫자만 뽑아낸 이후 str_replace와 regexp를 이용하여 값을 원하는 형태로 바꾸었습니다.
+* regexp 설명  
+  * [pattern]  
+  "([0-9]\*)" : 0부터 9까지의 숫자 하나 또는 두개가 기존의 wk의 값으로 존재하기 때문에 \*을 사용하였습니다. (반복 0회 이상) 이는 그룹 1에 해당합니다.
+  * [replacement]  
+  그룹 1의 값 앞에 week를 넣어주어야 하므로 "week\\\\1"로 표현하였습니다.
+* 처음에는 mutate(), parse_number()을 사용하지 않고 str_replace()와 regexp만 사용하였으나 regexp의 형태가 "(.)([0-9]*)(..)\\\\.([^ ]+)", "\\\\4\\\\2"으로 너무 복잡하여 가독성이 떨어진다고 판단하여 우선 숫자부터 추출하였습니다.
+```{r StrReplaceWkCol}
+data <- data %>% mutate(wk = parse_number(wk))
+data$wk <- data$wk %>% str_replace("([0-9]*)", "week\\1")
+data %>% head(10)
+```
+
+
+### remane()이용하여 변수 artist.inverted 이름 바꾸기
+* rename()을 이용하여 data의 변수명 artist.inverted를 artist로 바꿔줍니다.
+* rename()에서 등호의 왼쪽이 새로운 변수명, 오른쪽이 기존의 변수명에 해당합니다.
+```{r RenameArtistCol}
+data <- data %>% rename(artist=artist.inverted)
+data %>% head(10)
+```
+
+변수명이 원하는 형태로 변경된 것을 확인할 수 있습니다.
+
+### str_replace()와 regexp를 이용하여 값 바꾸기 (변수: artist)
+* str_replace()를 이용하여 변수 artist의 값들의 형태를 바꿔줍니다.  
+* regexp 설명  
+  * [pattern]  
+  원래 artist 변수의 값들의 형태를 보면, 공백이 아닌 문자가 반복된 후 콤마(,) 및 공백이 온 뒤 다시 공백이 아닌 문자가 반복됩니다.  
+  따라서 "([^ ]+), ([^ ]+)" 형태로 나타낼 수 있으며, 첫번째 소괄호는 그룹 1, 두번째 소괄호는 그룹 2가 됩니다.  
+  * [replacement]  
+  원하는 값의 형태가 그룹 2가 온 후 공백이 이어지고, 그 뒤에 그룹 1이 오는 형태이므로 "\\\\2 \\\\1"으로 지정했습니다.
+```{r StrReplaceArtistCol}
+data$artist <- data$artist %>% str_replace("([^ ]+), ([^ ]+)", "\\2 \\1")
+data %>% head(10)
+```
+변수명이 원하는 형태로 변경된 것을 확인할 수 있습니다.
+
+### mutate()를 이용하여 time 변수를 초 단위로 변환하기
+* time 변수의 값들에 as.numeric() 처리를 해서 초 단위로 변환을 시도하였습니다.
+* 그러나 값이 너무 크게 나와서 확인을 해 보니 csv상에서 3:38이 3:38:00 AM으로 인식되는 것을 확인하여 as.numeric()처리 후 60으로 나누어주었습니다.
+```{r ChangeToSec}
+data <- data %>% mutate(time = as.numeric(time)/60)
+data %>% head(10)
+```
+
+time 변수의 값들이 초 단위로 변경된 것을 확인할 수 있습니다.
+
+### 최종 테이블 생성
+* artist, track별로 최고 순위를 구해야 하므로 데이터를 artist, track순으로 그룹화를 진행합니다. 
+* filter()를 이용하여 rank가 가장 작은 행을 그룹별로 구합니다. (가장 작은 rank == 최고 순위)
+* 뽑아낸 행들의 rank가 최고 순위이고, date.peacked가 그 날짜이므로 rename()을 이용하여 각각 변수명을 변경하였습니다.
+* 이후 select()를 이용하여 필요한 변수들만 뽑아내어 최종 테이블을 만들었습니다.
+* summarise()를 이용할 경우: "summarise peels off a single layer of grouping"
+* rank의 최솟값을 기준으로 필터링을 해 준 경우 해당 artist, track이 여러 주 동안 최고 랭킹을 유지한 경우 wk값만 다른 행이 여러 개 출력되는 것을 확인할 수 있었습니다.
+* 그러나, wk변수를 삭제하였기 때문에 중복되는 행이 생성되었고, 따라서 unique 처리를 하여 중복되는 행은 지워주었습니다.
+```{r GroupByArtistAndTrack, message=FALSE, paged.print=TRUE}
+data <- data %>% group_by(artist, track) %>% filter(rank==min(rank)) %>%
+  rename(highest_rank = rank, highest_rank_date = date.peaked) %>% 
+  select(-c(year, date.entered, wk)) %>% unique
+data # final result
+```
