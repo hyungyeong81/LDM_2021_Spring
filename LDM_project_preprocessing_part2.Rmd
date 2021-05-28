@@ -1,0 +1,372 @@
+---
+title: "Analysis on Crimes of New York City"
+author: "Hyungyeong Hong"
+date: "5/22/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+Loading required packages for further preprocessing and EDA
+```{r, message = FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+Changing working directory
+```{r}
+setwd("/Users/hyungyeonghong/Desktop/LDM_project")
+```
+
+Reading a preprocessed csv file
+```{r, message = FALSE}
+data <- fread("data_preprocessed.csv")
+```
+
+Changing the name of index column
+```{r}
+data <- data %>% rename(index = V1)
+```
+
+Checking the preprocessed data
+```{r}
+data
+```
+
+## Dealing with NA values
+```{r}
+data %>% lapply(is.na) %>% sapply(sum)
+```
+
+### nyc_cases, nyc_deaths, us_cases, us_deaths
+Before COVID-19: no cases and deaths of COVID-19, therefore changed NA values to 0  
+There is no NA value after COVID-19 (since the data was preprocessed previously)
+```{r}
+data$nyc_cases <- data$nyc_cases %>% replace_na(0)
+data$nyc_deaths <- data$nyc_deaths %>% replace_na(0)
+data$us_cases <- data$us_cases %>% replace_na(0)
+data$us_deaths <- data$us_deaths %>% replace_na(0)
+data %>% lapply(is.na) %>% sapply(sum)
+```
+
+### precinct
+The reason why I couldn't use other verified methods...?
+mice에서 lat, lon, precinct만 넣어주고 결과에서 precinct만 빼오는건 어떨까? 대신 해당 column들 다 존재하는 애들만!
+Could not use mice method since there were more than 50 categories (there are 77 precincts and precincts are factors, not numeric variables)
+```{r}
+# library(mice)
+# data$precinct <- data$precinct %>% as.factor
+# imp <- data %>% select(precinct, latitude, longitude)
+# imp <- mice(data, seed = 2021)
+```
+
+Tried to use deep learning model to impute NA values by prediction
+Error kept occurring while using tensorflow and keras in r
+Tested in python but had bad accuracy
+### add some images of sample python codes and results here!
+
+```{r, message = FALSE}
+install.packages("rgdal")
+library(raster)
+
+nypp <- shapefile("nypp.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+nypp <- fortify(nypp, region = "Precinct")
+nypp <- nypp %>% dplyr::select(id, long, lat)
+```
+
+solution 1
+```{r, message = FALSE}
+library(sp)
+library(pracma)
+```
+
+```{r}
+data_sub <- data %>% dplyr::select(index, precinct, longitude, latitude) %>% filter(is.na(precinct) == TRUE) %>% filter(is.na(longitude) == FALSE & is.na(latitude) == FALSE)
+
+tmp_precinct <- data.frame(matrix(nrow = nrow(data_sub), ncol = 78))
+colnames(tmp_precinct) <- c("index", 1:77)
+tmp_precinct$index <- data_sub$index
+
+precinct_idx <- data$precinct %>% unique %>% sort
+
+# precinct가 연속된 숫자가 아닌데!!!! 1:77로 iteration하고 있었음ㅠㅠ
+# Avoided nested for loop since it was taking too long
+
+for(i in 1:77){
+  nypp_sub <- nypp %>% filter(id == precinct_idx[i])
+  tmp_precinct[,i+1] <- inpolygon(data_sub$longitude, data_sub$latitude, nypp_sub$long, nypp_sub$lat, boundary = TRUE)
+}
+
+result <- tmp_precinct %>% dplyr::select(-index) %>% rowSums
+result_idx <- which(result == 1)
+tmp_precinct <- tmp_precinct[result_idx,]
+tmp_precinct
+
+for(i in 1:77){
+  true_rownum <- which(tmp_precinct[,i+1] == TRUE)
+  true_idx <- tmp_precinct$index[true_rownum]
+  precinct_classified <- precinct_idx[i]
+  data$precinct[true_idx] <- precinct_classified
+}
+
+data %>% dplyr::select(index, precinct) %>% filter(is.na(precinct) == TRUE)
+```
+
+### borough
+Dealing with NA values of borough variable initially by using precinct
+
+Can deal with 9443 NA's / 11168 NA's
+```{r}
+data %>% filter(is.na(borough) == TRUE) %>% dplyr::select(borough, precinct) %>% filter(is.na(precinct) == FALSE)
+```
+https://www1.nyc.gov/site/nypd/bureaus/patrol/precincts-landing.page
+
+Precinct 1~34: MANHATTAN
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct) 
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 1 & tmp$precinct <= 34)
+data$borough[idx] <- "MANHATTAN"
+```
+
+Precinct 40~52: BRONX
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 40 & tmp$precinct <= 52)
+data$borough[idx] <- "BRONX"
+```
+
+Precinct 60~94: BROOKLYN
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 60 & tmp$precinct <= 94)
+data$borough[idx] <- "BROOKLYN"
+```
+
+Precinct 100~115: QUEENS
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 100 & tmp$precinct <= 115)
+data$borough[idx] <- "QUEENS"
+```
+
+Precinct 120~123: STATEN ISLAND
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 120 & tmp$precinct <= 123)
+data$borough[idx] <- "STATEN ISLAND"
+```
+
+Checking the number of NA values in borough variable after dealing with NA values
+```{r}
+data %>% lapply(is.na) %>% sapply(sum)
+```
+
+Also tried to deal with the NA values of precinct variable by using k-means clustering
+Two variables, latitude and longitude will be used for k-means clustering
+```{r}
+# latitude value and longitude value are required for the classification
+## latlon_precinct <- data %>% select(latitude, longitude) %>% filter(is.na(latitude) == FALSE & is.na(longitude) == FALSE)
+
+# k-means clustering
+## set.seed(2021)
+## clusters <- kmeans(latlon, 77, nstart = 20) 
+
+# in order to add the column to the original dataset
+## latlon_idx <- which(is.na(data$latitude) == FALSE & is.na(data$longitude) == FALSE)
+## pred_clusters <- as.factor(clusters$cluster)
+## precinct_clusters <- data.frame(index = latlon_idx, pred_clusters)
+## data <- left_join(data, precinct_clusters, by = "index")
+## measure <- data %>% filter(is.na(precinct) == FALSE & is.na(pred_clusters) == FALSE)
+## (measure$precinct == measure$pred_clusters) %>% sum
+## length(measure$precinct) # bad classification, and this may lead to wrong result
+```
+
+Checking the clusters on the map(Plotting Spatial Data)
+```{r}
+#library(ggmap)
+#register_google(key = "API KEY DELETED")
+```
+
+Since stamenmap method was not working, I had to use googlemap method here.
+```{r, message = FALSE}
+#map_df <- data %>% filter(is.na(latitude) == FALSE & is.na(latitude) == FALSE)
+
+#height <- max(map_df$latitude) - min(map_df$latitude)
+#width <- max(map_df$longitude) - min(map_df$longitude)
+
+#map <- get_googlemap(center = c(lon = median(map_df$longitude), lat = median(map_df$latitude)), zoom = 10, maptype = "roadmap")
+
+#ggmap(map) +
+#  geom_point(data = map_df, mapping = aes(x = longitude, y = latitude, color = pred_clusters)) +
+#  ggtitle("K-means Clustering Result") +
+#  labs(x = "longitude", y = "latitude") +
+#  theme(plot.title = element_text(size = rel(1.5), face = "bold"),
+#        legend.position = "none")
+  
+```
+
+NA imputation based on K-means clustering  
+NA imputation of precinct variable by using for loop
+matching the clustering index and the mode of the row(cluster)
+```{r}
+#precinct_df <- data.frame(pred_clusters = 1:77, precinct_classified = rep(NA, 77))
+
+#for(i in 1:77){
+#  cluster_summarized <- data %>% 
+#    select(latitude, longitude, precinct, pred_clusters) %>% filter(pred_clusters == i) %>%
+#    group_by(precinct) %>% summarize(count = n())
+#  max_cluster <- cluster_summarized %>% filter(count == max(cluster_summarized$count))
+#  precinct_df$precinct_classified[i] <- max_cluster$precinct
+#}
+
+#precinct_df$pred_clusters <- as.factor(precinct_df$pred_clusters)
+```
+
+left joining the datasets
+```{r}
+#data <- data %>% left_join(precinct_df, by = "pred_clusters")
+```
+
+```{r}
+#data
+```
+NA imputation for precinct variable
+```{r}
+#for(i in 1:nrow(data)){
+#  if(is.na(data$precinct[i]) == TRUE){
+#    data$precinct[i] <- data$precinct_classified[i]
+#  }
+#}
+```
+
+Saving the data
+```{r}
+data %>% write.csv("data_preprocessed_2.csv")
+```
+
+```{r}
+data <- fread("data_preprocessed_2.csv")
+data <- data %>% dplyr::select(-V1)
+```
+
+```{r}
+data$precinct <- data$precinct %>% as.factor
+```
+
+
+```{r}
+data %>% lapply(is.na) %>% sapply(sum)
+```
+Still, there are too many NA values in suspect_age, suspect_race, suspect_sex and victim_age variable. Therefore, these values will be just used for getting approximate information about the crimes, and will not be used for deeper analysis since the number of observations may affect the result of analysis.
+
+Checking the column names of the data
+```{r}
+data %>% colnames 
+```
+
+Descriptions about the columns
+* precinct: the precinct in which the incident occurred
+* borough: the name of the borough in which the incident occurred
+* date: exact date of occurrence for the reported event (starting day of the occurrence)
+* time: exact time of occurrence for the reported event (starting time of the occurrence)
+* consequence: indicator of whether crime was successfully completed, attempted but failed or was interrupted prematurely
+* level: level of offense - felony, misdemeanor, violation
+* description: description of offense
+* granular_description: description of internal classification, more granular description than offense description
+* premises: specific description of premises - grocery store, residence, street, etc.
+* suspect_age: suspects' age group
+* suspect_race: suspects' race description
+* suspect_sex: suspects' sex description
+* victim_age: victims' age group
+* victim_race: victims' race description
+* victim_sex: victims' sex description
+* latitude: midblock latitude coordinate for global coordinate system
+* longitude: midblock longitude coordinate for global coordinate system
+* nyc_cases: daily COVID-19 cases in New York City
+* nyc_deaths: daily COVID-19 deaths in New York City
+* us_cases: daily COVID-19 cases in the U.S.
+* us_deaths: daily COVID-19 cases in the U.S.
+
+```{r}
+desc_elements <- data %>% dplyr::select(description) %>% sapply(unique)
+length(desc_elements)
+```
+
+Defining a function to check the length of corresponding granular_description values (unique values)
+```{r}
+CheckDescLength <- function(data, desc_elements){
+  output_df <-data.frame(description = rep(NA, length(desc_elements)), count = rep(NA, length(desc_elements)))
+  
+  for(idx in 1:length(desc_elements)){
+    
+    desc_data <- data %>% dplyr::select(description, granular_description) %>% 
+    filter(description == desc_elements[idx,]) %>% dplyr::select(granular_description) %>% unique
+  
+    colnames(desc_data) <- desc_elements[idx, ]
+  
+    desc_length <- desc_data %>% sapply(length)
+  
+    names(desc_length) <- NULL
+    
+    output_df$description[idx] <- desc_elements[idx,]
+    output_df$count[idx] <- desc_length
+  }
+  
+  print(output_df)
+}
+```
+
+```{r}
+desc_length <- CheckDescLength(data, desc_elements)
+```
+
+```{r}
+desc_length %>% summary
+```
+
+```{r}
+desc_length %>% filter(count > 5 + 1.5 * (5 - 4)) %>% arrange(count)
+```
+
+Defining a function to check description and granular_description variables
+```{r}
+CheckDesc <- function(data, desc_elements, description_name){
+  desc_data <- data %>% dplyr::select(description, granular_description) %>% 
+    filter(description == description_name) %>% dplyr::select(granular_description) %>% unique
+  
+  colnames(desc_data) <- description_name
+  
+  print(desc_data)
+}
+```
+
+```{r}
+CheckDesc(data, dexc_elements, "MISCELLANEOUS PENAL LAW")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "GRAND LARCENY")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "ROBBERY")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "DANGEROUS DRUGS")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "PETIT LARCENY")
+```
+
+These values are too specific. We don't need this much values for classifying crimes. Therefore, the variable granular_description will be deleted. (description variable is enough)
+
+```{r}
+data <- data %>% dplyr::select(-granular_description)
+```
+
+```{r}
+data %>% write.csv("data_preprocessed_3.csv") 
+```
+

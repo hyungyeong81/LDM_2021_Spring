@@ -1,0 +1,872 @@
+---
+title: "Analysis on Crimes of New York City"
+author: "2019313106 홍현경"
+date: "4/21/2021"
+output:
+  html_document:
+    df_print: paged
+---
+## Section 1. Backgrounds of the Project
+
+### 1. Motivation
+
+* Personal Background
+
+(1) Experienced racial discrimination as a Asian woman while staying in New York
+(2) Felt unsafe during the stay
+(3) Began to pay attention to racism and crimes frequently occurring in New York.
+
+
+* Current Issues in the United States
+
+(1) George Floyd's death and nationwide protest
+* Occurred in May 25th, 2020 in Minneapolis, Minnesota, United States
+* A white police officer kneeled on Geroge Floyd's neck for more than 9 minutes while he was pinned to the floor, after arresting him.
+* Floyd kept saying that he could not breath while being restrained by the police officers.
+* After his death, the protest against police brutality towards black people spread across the nation.
+* Protests occurred in total 75 cities in the U.S. within 5 days.
+* There were even violent protests. For example, in Philadelphia, the protests damaged police cars and the stores were robbed. Moreover, stores in Santa Monica were also robbed and in Minneapolis, an oil tanker rushed to thousands of protests.
+  
+(2) 2021 Atlanta Spa Shootings
+* Occurred in March 16th, 2021 in Atlanta, Unites States
+* The target was the businesses run by Asians.
+* Including 4 Korean women, 6 Asian women were killed by the shooting. Total 8 were killed.
+* The public thought that this shooting incident is a hate crime, which is mainly focused on racism.
+* However the spokesperson of Cherokee County assured that this incident was not a hare crime; he said that the suspect has been suffering from sexual addiction and the suspect had said that he committed a crime to overcome temptation. Moreover, he states that the suspect committed a crime after having "a bad day".
+* What is even worse is that the spokesperson uploaded a post about the relationship between COVID-19 and China, which provoked anger of the public.
+* Asian-American women view this shooting incident as racial misogyny.
+  
+(3) Racism and Discrimination in COVID-19 responses
+* https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30792-3/fulltext
+* "Following the spread of COVID-10 from Wuhan, China, discrimination towards Chinese people has increased."
+* "President Donald Trump has referred to severe acute respiratory syndrome coronavirus 2 as the Chinese virus, linking the health threat to foreign policy and trade negotiations."
+* "Heath protection relies not only on a well-functioning health system with universal coverage, but also on social inclusion, justice and solidarity. In the absence of those factors, inequalities are magnified, and scapegoating persists, with discrimination remaining long after. Division and fear of others will lead to worse outcomes for all."
+  
+Became interested in the occurrence of hate crimes 
+There could be factors related to crimes other than race.  
+There might be a new aspect of crime conditions due to COVID-19 situation. 
+Analyze the crime conditions of New York, the most populous city in the U.S. and the city that I've experienced racial discrimination, and get insights about crimes. 
+
+### 2. Necessity
+
+(1) Factors related to crimes: Detecting Vulnerable Factors
+* New York is the most populous city in the U.S. and it has high population density. 
+* More than 800 languages were being used in New York, in 2010. 
+* Since New York is a multicultural and multiethnic city, problems regarding hate crimes and racial discrimination are being provoked consistently. 
+* Therefore, it is essential to know about which social group is vulnerable to crimes in order to prevent crimes and appropriately respond to crime status. 
+* However, there might be other factors related to crimes; social groups that are vulnerable to crimes other than racial groups, places and periods that are vulnerable to crimes. 
+* Finding the factors related to crimes will provoke consciousness to crimes and this will further help constructing policies regarding crimes and preventing crimes. 
+
+(2) Emergence of New Factor Regarding Crimes
+
+![statistic_1](statistics_1.png) 
+![statistic_2](statistics_2.png) 
+
+* During pandamic, the overall crime rate has decreased. 
+* However, burglary and shooting incidents rates have increased significantly. 
+* Due to COVID-19, lots of stores were closed and telecommuting work became prevalent. 
+* Therefore, it is possible to think that the number of crimes targeting empty company buildings and empty stores have increased. 
+* Identifying the change in crime conditions due to COVID-19 is important for preventing further crimes and dealing with new aspects of crimes. 
+
+### 3. Topic
+* Analysis on Crimes of New York City (미국 뉴욕시 범죄 발생 현황 분석 보고서)
+
+### 4. Aim
+(1) Analyzing overall crime rates in New York City, identifying the factors(such as date, time, place and social group) related to crimes and visualizing them.
+* Are there any times/periods that crimes frequently occur? If exists, when?
+* Are there any places that crimes frequently occur? If exists, where?
+* Are there any social groups that are vulnerable to crimes? If exists, who?
+
+(2) Visualizing crime conditions on an interactive map
+* Visualizing crime conditions using the information about latitude and longitude
+* Showing detailed information about crime status based on location
+
+(3) Getting insights about the conditions of crime with regard to COVID-19 situation
+* Clustering the dates in accordance with the number of daily COVID-19 cases and analyzing crime conditions
+* Finding the relationship between the seriousness of COVID-19 situation and crime conditions
+
+
+## Section 2. Description of Data
+
+### 1. NYPD_Complaint_Data_Historic.csv / NYPD Complaint Data Historic
+* https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i
+* includes all valid felony, misdemeanor, and violation crimes reported to NYPD from 2006 to 2019
+
+### 2. NYPD_Complaint_Data_Current.csv / NYPD Complaint Data Current (Year to Date)
+* https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Current-Year-To-Date-/5uac-w243
+* includes all valid felony, misdemeanor, and violation crimes reported to NYPD in 2020
+
+* 1 and 2 includes information about the crime cases reported to NYPD in 2020, and from 2006 to 2019, respectively.
+* By preprocessing those datasets and binding them in rows, we can get the crime data from 2006 to 2020.
+* The reason why explicit hate crimes data is not included here: Just like the case of George Floyd, it isn't easy to determine whether a crime is a hate crime or not. More, "NYPD hate crimes" data only includes cases from 2019 to 2020, which is insufficient to see the overall crime conditions in New York City.
+* NYPD complaint datasets include information about date, time, age group, sex, race, location(latitude, longitude), level/type of crimes, and whether a crime was completed or attempted.
+* Therefore, these datasets are appropriate to get insights about crimes. (It is still possible to get information about hate crimes since both datasets have information about the race of victims and suspects)
+
+### 3. NYC_covid19_cases.csv / New York City COVID-19 cases
+* https://raw.githubusercontent.com/nychealth/coronavirus-data/master/trends/data-by-day.csv
+* This dataset contains information about daily COVID-19 cases in New York City from 02/29/2020 to 04/16/2021.
+* This dataset will be joined with the complaints data with respect to date to indicate the number confirmed cases and deaths due to COVID-19 in NYC.
+
+### 4. COVID-19_Case_Surveillance_Public_Use_Data.csv / U.S. COVID-19 cases
+* https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf
+* This dataset contains information about daily COVID-19 cases in the United States from 01/01/2020 to 03/16/2021.
+* This dataset will also be joined with the complaints data with respect to date to indicate the number confirmed cases and deaths due to COVID-19 in the U.S.
+  
+
+## Section 3. Handling Data
+
+### 1. Settings
+### (1) Loading Packages
+```{r settings_packages, message=FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+```{r settings_wd, echo = FALSE}
+setwd("/Users/hyungyeonghong/Desktop/LDM_project")
+```
+
+### (2) Reading Files
+* The size of each file is too big.
+* Therefore, read each file by using fread(), which is the function of data.table package.
+```{r settings_files, message=FALSE}
+complaint_historic <- fread("NYPD_Complaint_Data_Historic.csv")
+complaint_current <- fread("NYPD_Complaint_Data_Current.csv")
+covid_nyc <- fread("NYC_covid19_cases.csv")
+covid_us <- fread("COVID-19_Case_Surveillance_Public_Use_Data.csv")
+```
+  
+ 
+### 3-1. Data EDA / Preprocessing: NYPD complaint datasets
+
+### (1) Checking the Dimension of Each Data
+```{r data_dim}
+complaint_historic %>% dim
+complaint_current %>% dim
+```
+
+### (2) Checking the Column Names(variable names) of Each Data
+* Since the two datasets should be combined in order to get a single dataset that has information about the crimes in New York from the year of 2006 to 2020, we need to check whether the variable names of the two datasets match or not.
+* For convenience, the variable names are sorted in an alphabetical order.
+* The number of variables are also printed for easier comparison.
+
+* Sorting the variable names of complaint_historic dataset and getting the number of variables
+```{r data_historicVarNames}
+complaint_historic %>% colnames %>% sort %>% print %>% length
+```
+
+* Sorting the variable names of complaint_historic dataset and getting the number of variables
+```{r data_currentVarNames}
+complaint_current %>% colnames %>% sort %>% print %>% length
+```
+
+* complaint_current dataset has one more variable, "New Georeferenced Column", than complaint_historic dataset.
+* Therefore, the variable "New Georeferenced Column" is deleted.
+```{r data_matchVarNames}
+complaint_current <- complaint_current %>% select(-`New Georeferenced Column`)
+complaint_current %>% colnames %>% sort %>% print %>% length
+```
+* Now, the column names of the two datasets match each other.
+
+
+### (3) Description of the Variables
+* ADDR_PCT_CD: the precinct in which the incident occurred
+* BORO_NM: the name of the borough in which the incident occurred
+* CMPLT_FR_DT: exact date of occurrence for the reported event(starting date of occurrence)
+* CMPLT_FR_TM: exact time of occurrence for the reported event(starting time of occurrence) 
+* CMPLNT_NUM: randomly generated persistent ID for each complaint
+* CMPLNT_TO_DT: ending date of occurrence for the reported event, if exact time of occurrence is unknown
+* CMPLNT_TO_TM: ending time of occurrence for the reported event, if exact time of occurrence is unknown
+* CRM_ATPT_CPTD_CD: indicator of whether crime was successfully completed or attempted but failed or was interrupted prematurely
+* HADEVELOPT: name of NYCHA housing development of occurrence, if applicable
+* HOUSING_PSA: development level code
+* JURIS_DESC: description of the jurisdiction code
+* JURISDICTION_CODE: jurisdiction responsible for the incident
+* KY_CD: three digit offense classification code
+* Lat_Lon: geospatial location code (latitude and longitude combined)
+* Latitude: midblock latitude coordinate for global coordinate system
+* LOW_CAT_CD: level of offense; felony, misdemeanor, violation
+* LOC_OF_OCCUR_DESC: specific location of occurrence in or around the premises; inside, opposite of, front of, rear of
+* Longitude: midblock longitude coordinate for global coordinate system
+* OFNS_DESC: decription of offense corresponding with key code
+* PARKS_NM: name of NYC park, playground or greenspace of occurrence, if applicable (state parks are not included)
+* PATROL_BORO: the name of the patrol borough in which the incident occurred
+* PD_CD: three digit internal classification code(more granular than key code)
+* PD_DESC: description of internal classification corresponding with PD code (more granular than offense description)
+* PREM_TYP_DESC: specific description of premises; grocery store, residence, street, etc.
+* RPT_DT: date when the event was reported to police
+* STATION_NAME: transit station name
+* SUSP_AGE_GROUP: suspects' age group
+* SUSP_RACE: suspects' race description
+* SUSP_SEX: suspects' sex description
+* TRANSIT_DISTRICT: transit district in which the offense occurred
+* VIC_AGE_GROUP: victims' age group
+* VIC_RACE: victims' race description
+* VIC_SEX: victims' sex description
+* X_COORD_CD: x-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet(FIPS 3104)
+* Y_COORD_CD: y-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet(FIPS 3104)
+
+### (4) Deleting Unnecessary Variables
+* There are total 35 variables in each data, which also includes unnecessary variables.
+* Unnecessary variables are the variables that do not match the goal of the analysis and therefore they are deleted from each dataset.
+* Total 18 variables are deleted from each dataset.
+  * CMPLNT_NUM: randomly generated ID is unnecessary for further analysis
+  * CMPLNT_TO_DT: we are only interested in the occurrence date/time of crimes
+  * CMPLNT_TO_TM: we are only interested in the occurrence date/time of crimes 
+  * HADEVELOPT: information related to NYC housing is unnecessary for further analysis
+  * HOUSING_PSA: information related to NYC housing is unnecessary for further analysis
+  * JURIS_DESC: most of its values are 0 and therefore this variable is not meaningful
+  * JURISDICTION_CODE: most of its values are N.Y.POLICE DEPT and therefore this variable is not meaningful
+  * KY_CD: offense classification codes do not give meaningful information and we already have the variable with the descriptions on crimes
+  * Lat_Lon: we already have latitude and longitude variable
+  * LOC_OF_OCCUR_DESC: the values of this variable is too specific - it provides unnecessary informations about locations
+  * PARKS_NM: park names are too specific - we only need the information about general location such as borough, latitude and longitude
+  * PATROL_BORO: we already have precinct variable, which indicates specific patrol borough
+  * PD_CD: classification codes are not meaningful
+  * RPT_DT: reported date is unnecessary - we are only interested in the occurrence date/timr of crimes
+  * STATION_NAME: station names are too specific - we only need the information about general location such as borough, latitude and longitude
+  * TRANSIT_DISTRICT: transit districts are too specific - we only need the information about general location such as borough, latitude and longitude
+  * X_COORD_CD: we alrealy have latitude and longitude variable
+  * Y_COORD_CD: we alrealy have latitude and longitude variable
+
+* Selecting the variables of complaint_historic data
+```{r data_historicVarSelect}
+complaint_historic <-
+  complaint_historic[, .(ADDR_PCT_CD, BORO_NM, CMPLNT_FR_DT, CMPLNT_FR_TM, CRM_ATPT_CPTD_CD, LAW_CAT_CD, OFNS_DESC, PD_DESC, PREM_TYP_DESC, SUSP_AGE_GROUP, SUSP_RACE, SUSP_SEX, VIC_AGE_GROUP, VIC_RACE, VIC_SEX, Latitude, Longitude)]
+
+complaint_historic %>% dim # Checking the number of variables
+```
+
+* selecting the variables of complaint_current data
+```{r data_currentVarSelect}
+complaint_current <-
+  complaint_current[, .(ADDR_PCT_CD, BORO_NM, CMPLNT_FR_DT, CMPLNT_FR_TM, CRM_ATPT_CPTD_CD, LAW_CAT_CD, OFNS_DESC, PD_DESC, PREM_TYP_DESC, SUSP_AGE_GROUP, SUSP_RACE, SUSP_SEX, VIC_AGE_GROUP, VIC_RACE, VIC_SEX, Latitude, Longitude)]
+
+complaint_current %>% dim # Checking the number of variables
+```
+
+### (5) Changing the Variable Names
+* The variable names of original datasets has bad readability.
+* For obvious analysis, the variable names of each datasets are modified to the variable names with better readability, which better represents the information that each variable contains.
+
+* Setting the modified variable names for each dataset
+```{r data_setVarNames}
+original_varnames <- c("ADDR_PCT_CD", "BORO_NM", "CMPLNT_FR_DT", "CMPLNT_FR_TM", "CRM_ATPT_CPTD_CD", "LAW_CAT_CD", "OFNS_DESC", "PD_DESC", "PREM_TYP_DESC", "SUSP_AGE_GROUP", "SUSP_RACE", "SUSP_SEX", "VIC_AGE_GROUP", "VIC_RACE", "VIC_SEX", "Latitude", "Longitude")
+
+modified_varnames <- c("precinct", "borough", "date", "time", "consequence", "level", "description", "granular_description", "premises", "suspect_age", "suspect_race", "suspect_sex", "victim_age", "victim_race", "victim_sex", "latitude", "longitude")
+```
+
+* Changing the column names of complaint_historic dataset
+```{r data_historicVarChange}
+complaint_historic <- complaint_historic %>% setnames(original_varnames, modified_varnames)
+complaint_historic %>% colnames # Checking the modified variable names
+```
+
+* Changing the column names of complaint_current dataset
+```{r data_currentVarChange}
+complaint_current <- complaint_current %>% setnames(original_varnames, modified_varnames)
+complaint_current %>% colnames
+```
+
+### (6) Checking Empty Values
+* Empty values are regarded as missing values since they have no information.
+* Therefore the number of empty values are checked for each column(variable).
+* If empty values exist, the empty values are changed to NA's.
+* na.rm = TRUE is required to prevent getting NA values for the result of colSums(). There might be NA values in each column.
+
+* Checking the number of empty values in each column(variable) of complaint_historic dataset.
+```{r data_historicEmptyVals}
+(complaint_historic=="") %>% colSums(na.rm = TRUE)
+```
+* There are empty values in borough, date, time, consequence, description, granular_description, premises, suspect_age, suspect_race, suspect_sex, victim_age, victim_race and victim_sex variables.
+* More than half of the observations have empty values for suspect_age, suspect_race and suspect_sex variables.
+* These empty values are changed to NA's.
+
+```{r}
+for(i in 1:length(colnames(complaint_historic))){
+  for(j in 1:nrow(complaint_historic)){
+    if(complaint_historic[,..i][j] == ""){
+      complaint_historic[,..i][j] <- NA
+    }
+  }
+}
+```
+```{r}
+complaint_historic == ""
+```
+
+
+```{r data_historicEmptyValsToNAs}
+complaint_historic[complaint_historic==""] <- NA
+```
+
+* Checking the number of empty values in each column(variable) of complaint_current dataset.
+```{r data_currentEmptyVals}
+(complaint_current=="") %>% colSums(na.rm = TRUE)
+```
+* Empty values exist in borough, granular_description, premises, suspect_age, suspect_race, suspect_sex, victim_age, victim_race, victim_sex variables.
+* Therefore, these empty values are changed to NA's
+```{r data_currentEmptyValsToNAs}
+complaint_current[complaint_current==""] <- NA
+```
+
+
+### (7) Checking Missing Values
+* The function is.na() is applied to each column.
+* Then the number of missing values are counted for each column and the result is returned as a vector.
+
+* Checking missing values of complaint_historic dataset
+```{r data_historicCheckNA}
+complaint_historic %>% lapply(is.na) %>% sapply(sum)
+```
+* All the variables except the level variable has missing values.
+* The number of missing values in suspect_age, suspect_race and suspect_sex seems quite a lot since they are more than half of the number of observations.
+
+```{r data_currentCheckNA}
+complaint_current %>% lapply(is.na) %>% sapply(sum)
+```
+
+
+### (8) Checking the Unique Values of Each Variables and Handling Them
+* Date, time, latitude and longitude variables are not included since there are too many values in those variables. (results are hidden since they are too long)
+
+* Checking the unique values of each variables in complaint_historic dataset
+```{r data_historicUnique, results = 'hide'}
+complaint_historic[,-c("date", "time", "latitude", "longitude")] %>% lapply(unique) %>% lapply(sort)
+```
+
+* Checking the unique values of each variables in complaint_current dataset
+```{r data_currentUnique, results = 'hide'}
+complaint_current[,-c("date", "time", "latitude", "longitude")] %>% lapply(unique) %>% lapply(sort)
+```
+
+**borough**
+```{r data_historicCompareBorough}
+complaint_historic %>% 
+  anti_join(complaint_current, by="borough") %>% 
+  count(borough, sort=TRUE)
+```
+
+```{r data_currentCompareBorough}
+complaint_current %>% 
+  anti_join(complaint_historic, by="borough") %>% 
+  count(borough, sort=TRUE)
+```
+* Therefore, the values of borough variable in each dataset match each other.
+
+**consequence**
+```{r data_historicCompareConseq}
+complaint_historic %>% 
+  anti_join(complaint_current, by="consequence") %>% 
+  count(consequence, sort=TRUE)
+```
+* There are NA's in complaint_historic dataset, but not in complaint_current dataset.
+
+```{r data_currentCompareConseq}
+complaint_current %>% 
+  anti_join(complaint_historic, by="consequence") %>% 
+  count(consequence, sort=TRUE)
+```
+
+**level**
+```{r data_historicCompareLevel}
+complaint_historic %>% 
+  anti_join(complaint_current, by="level") %>% 
+  count(level, sort=TRUE)
+```
+
+```{r data_currentCompareLevel}
+complaint_current %>% 
+  anti_join(complaint_historic, by="level") %>% 
+  count(level, sort=TRUE)
+```
+* Therefore, the values of level variable in each dataset match each other.
+
+**description**
+```{r data_historicCompareDesc}
+complaint_historic %>% 
+  anti_join(complaint_current, by="description") %>% 
+  count(description, sort=TRUE)
+```
+* complaint_historic dataset has 12 more unique values in description variable than complaint_current dataset.
+
+```{r data_currentCompareDesc}
+complaint_current %>% 
+  anti_join(complaint_historic, by="description") %>% 
+  count(description, sort=TRUE)
+```
+* It's better to leave unique values in complaint_historic dataset since the values of complaint_current are included in complaint_historic dataset.
+
+**granular_description**
+```{r data_historicCompatreGran}
+complaint_historic %>% 
+  anti_join(complaint_current, by = "granular_description") %>% 
+  count(granular_description, sort = TRUE)
+```
+* complaint_historic dataset has 86 more unique values in granular_description variable than complaint_current dataset.
+
+```{r data_currentCompareGran}
+complaint_current %>% 
+  anti_join(complaint_historic, by = "granular_description") %>% 
+  count(granular_description, sort = TRUE)
+```
+* complaint_current dataset has 1 more unique value in granular_description variable than complaint_historic dataset.
+* It's better to leave unique values in each dataset since most of the values of complaint_current are included in complaint_historic dataset.
+
+**suspect_race**
+```{r data_historicCompareSusRace}
+complaint_historic %>% 
+  anti_join(complaint_current, by="suspect_race") %>% 
+  count(suspect_race, sort=TRUE)
+```
+* complaint_historic dataset has 1 more unique value in suspect_race variable than complaint_current dataset.
+
+```{r data_currentCompareSusRace}
+complaint_current %>% 
+  anti_join(complaint_historic, by="suspect_race") %>% 
+  count(suspect_race, sort=TRUE)
+```
+* It's better to leave unique values in complaint_historic dataset since the values of complaint_current are included in complaint_historic dataset.
+
+**suspect_sex**
+```{r data_historicCompareSusSex}
+complaint_historic %>% 
+  anti_join(complaint_current, by="suspect_sex") %>% 
+  count(suspect_sex, sort=TRUE)
+```
+
+```{r data_currentCompareSusSex}
+complaint_current %>% 
+  anti_join(complaint_historic, by="suspect_sex") %>% 
+  count(suspect_sex, sort=TRUE)
+```
+* Therefore, the values of suspect_sex variable in each dataset match each other.
+
+**victim_race**
+```{r data_historicCompareVicRace}
+complaint_historic %>% 
+  anti_join(complaint_current, by="victim_race") %>% 
+  count(victim_race, sort=TRUE)
+```
+* complaint_historic dataset has 1 more unique value in victim_race variable than complaint_current dataset.
+
+```{r data_currentCompareVicRace}
+complaint_current %>% 
+  anti_join(complaint_historic, by="victim_race") %>% 
+  count(victim_race, sort=TRUE)
+```
+* It's better to leave unique values in complaint_historic dataset since the values of complaint_current are included in complaint_historic dataset.
+
+**victim_sex**
+```{r data_historicCompareVicSex}
+complaint_historic %>% 
+  anti_join(complaint_current, by="victim_sex") %>% 
+  count(victim_sex, sort=TRUE)
+```
+* complaint_historic dataset has 1 more unique value in victim_sex variable than complaint_current dataset.
+
+```{r data_currentCompareVicSex}
+complaint_current %>% 
+  anti_join(complaint_historic, by="victim_sex") %>% 
+  count(victim_sex, sort=TRUE)
+```
+* It's better to leave unique values in complaint_historic dataset since the values of complaint_current are included in complaint_historic dataset.
+
+**date**        
+Checking the unique values of date in complaint_historic data
+```{r}
+complaint_historic$date %>% unique %>% length
+```
+
+* From 2006 to 2019: total 14 years
+* However, there 8179 / 365 is approximately 22.4
+* Therefore, the unique values should be checked.
+
+**[Year]**
+```{r}
+historic_years <- complaint_historic$date %>% str_sub(7, 10) %>% as.numeric
+historic_years %>% unique %>% sort(decreasing=TRUE)
+```
+
+  * These are invalid years, and therefore should be deleted.
+  * These observations are deleted since our aim is analysing the crimes regarding time.
+```{r}
+historic_years_invalid <- which(historic_years < 2006)
+```
+
+**[Month]**
+```{r}
+complaint_historic$date %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+  
+**[Day]**
+```{r}
+complaint_historic$date %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+  
+Checking the unique values of date in complaint_current data
+```{r}
+complaint_current$date %>% unique %>% length
+```
+
+* 2020: total 336 days
+* However, there are 1792 unique days.
+* Therefore, the unique values should be checked.
+
+**[Year]**
+```{r}
+current_years <- complaint_current$date %>% str_sub(7, 10) %>% as.numeric
+current_years %>% unique %>% sort(decreasing=TRUE)
+```
+  
+  * These are invalid years, and therefore should be deleted.
+  * These observations are deleted since our aim is analyzing the crimes regarding time.
+```{r}
+current_years_invalid <- which(current_years != 2020)
+```
+
+**[Month]**
+```{r}
+complaint_current$date %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+  
+**[Day]**
+```{r}
+complaint_current$date %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+
+* Deleting the rows of complaint_historic data with invalid years
+```{r}
+complaint_historic <- complaint_historic[-historic_years_invalid]
+complaint_historic %>% dim
+```
+
+* Deleting the rows of current_historic data with invalid years
+```{r}
+complaint_current <- complaint_current[-current_years_invalid]
+complaint_current %>% dim
+```
+
+**precinct**    
+Checking the unique values in precinct variable in complaint_historic dataset
+```{r}
+complaint_historic$precinct %>% unique %>% sort
+```
+* However, -99 precinct doesn't exist and therefore this value should be changed to NA.
+```{r}
+complaint_historic[precinct == -99] <- NA
+```
+
+Checking the unique values in precinct variable in complaint_current dataset
+```{r}
+complaint_current$precinct %>% unique %>% sort
+```
+* There is no inadequate precinct value in complaint_current dataset.
+
+**time**    
+Checking the unique values in time variable in complaint_historic dataset
+
+**[Hour]**
+```{r}
+complaint_historic$time %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+
+**[Minute]**
+```{r}
+complaint_historic$time %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+
+**[Second]**
+```{r}
+complaint_historic$time %>% str_sub(7, 8) %>% as.numeric %>% unique %>% sort
+```
+  * The second part does not seem to be meaningful.
+
+Checking the unique values in time variable in complaint_current dataset
+**[Hour]**
+```{r}
+complaint_current$time %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+
+**[Minute]**
+```{r}
+complaint_current$time %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * These values are adequate.
+
+**[Second]**
+```{r}
+complaint_current$time %>% str_sub(7, 8) %>% as.numeric %>% unique %>% sort
+```
+  * The second part does not seem to be meaningful.
+
+**victim_age**
+Checking the unique values in victim_age variable in complaint_current dataset
+```{r}
+complaint_historic$victim_age %>% unique %>% sort
+```
+
+* Adequate range of age: "<18", "18-24", "25-44", "45-64", "65+"
+* Therefore, victim_age values that do not match with these values should be changed to NA's.
+```{r}
+complaint_historic[(victim_age != "<18") & (victim_age != "18-24") & (victim_age != "25-44") &
+                     (victim_age != "45-64") & (victim_age != "65+")] <- NA
+
+complaint_historic$victim_age %>% unique %>% sort
+```
+
+* Also changing victim_age values in complaint_current dataset that are out of range
+```{r}
+complaint_current[(victim_age != "<18") & (victim_age != "18-24") & (victim_age != "25-44") &
+                     (victim_age != "45-64") & (victim_age != "65+")] <- NA
+
+complaint_current$victim_age %>% unique %>% sort
+```
+
+**suspect_age**
+Just like the way of victim_age variable, suspect_age values that are out of range should be changed to NA's.
+
+* Changing suspect_age values in complaint_historic dataset that are out of range
+```{r}
+complaint_historic[(suspect_age != "<18") & (suspect_age != "18-24") & (suspect_age != "25-44") &
+                     (suspect_age != "45-64") & (suspect_age != "65+")] <- NA
+
+complaint_historic$suspect_age %>% unique %>% sort
+```
+
+* Changing suspect_age values in complaint_current dataset that are out of range
+```{r}
+complaint_current[(suspect_age != "<18") & (suspect_age != "18-24") & (suspect_age != "25-44") &
+                     (suspect_age != "45-64") & (suspect_age != "65+")] <- NA
+
+complaint_current$suspect_age %>% unique %>% sort
+```
+
+
+**latitude**
+Checking the range of latitude variable values in complaint_historic dataset
+```{r}
+complaint_historic$latitude %>% range(na.rm = TRUE)
+```
+* The maximum value does not belong to the latitude of New York City
+
+* The minimum values, the 1st quartile, median, the 3rd quartile and the maximum value should be checked to detect possible mistaken values.
+```{r}
+complaint_historic$latitude %>% summary
+```
+* The latitude values of these observations are possible mistaken values.
+* However, these values are not going to be changed to NA's.
+* They are going to be detected as obvious  mistaken values when we plot the latitude and longitude values on the map. 
+* Therefore, these values are going to be handled on visualization section.
+```{r}
+complaint_historic[latitude >= 41]
+```
+
+Checking the range of latitude variable values in complaint_current dataset
+```{r}
+complaint_current$latitude %>% range(na.rm = TRUE)
+```
+* The range above matches the latitude of New York City
+* Latitude values will be further investigated in visualization section.
+
+**longitude**
+Checking the range of longitude variable values in complaint_historic dataset
+```{r}
+complaint_historic$longitude %>% range(na.rm = TRUE)
+```
+* The minimum value does not belong to the longitude of New York City.
+* The minimum values, the 1st quartile, median, the 3rd quartile and the maximum value should be checked to detect possible mistaken values.
+```{r}
+complaint_historic$longitude %>% summary
+```
+* The longitude values of these observations are possible mistaken values.
+* However, these values are not going to be changed to NA's since it's not obvious whether they are mistaken or not.
+* They are going to be detected as obvious mistaken values when we plot the latitude and longitude values on the map. 
+* Therefore, these values are going to be handled on visualization section.
+```{r}
+complaint_historic[longitude <= -75]
+```
+
+Checking the range of longitude variable values in complaint_current dataset
+```{r}
+complaint_current$longitude %>% range(na.rm = TRUE)
+```
+* The range above matches the longitude of New York City
+* Longitude values will be further investigated in visualization section.
+
+### (9) Binding the Two Datasets
+
+* Binding the two data sets and making them into a single dataset
+```{r}
+complaint_data <- rbind(complaint_historic, complaint_current)
+```
+
+* Checking the dimension of combined dataset
+```{r}
+complaint_data %>% dim
+```
+
+### (10) Further Preoprocessing: Changing the Format of Date Variable
+* Changing the format of the values: from character to date
+```{r}
+# lubridate is not working
+# data.table format is also not working due to an error
+complaint_data$date <- complaint_data$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+complaint_data$date <- complaint_data$date %>% as.Date
+complaint_data %>% head(10)
+```
+
+* Sorting the data by date in an increasing order
+```{r}
+complaint_data <- complaint_data[order(date),]
+```
+
+* Checking the last date of the data set
+```{r}
+complaint_data[order(-date)][1, date]
+```
+* Therefore, the final date of integrated data is going to be 2020-12-31
+
+### 3-2. Data EDA / Preprocessing: New York City COVID-19 Cases
+
+### (1) Checking the Dimension of the Dataset
+```{r}
+covid_nyc %>% dim
+```
+
+### (2) Deleting unnecessary variables
+* Checking the variable(column) names of the dataset
+```{r}
+covid_nyc %>% colnames
+```
+
+* Since we are interested in daily COVID-19 status, date_of_interest, CASE_COUNT and DEATH_COUNT variables are selected.
+* PROBABLE_CASE_COUNT and PROBABLE_DEATH_COUNT variables contain the positive cases with positive antigen test result. However, CSTE updated the position statement on August 5, 2020 to clarify the interpretation of antigen detection tests and serologic test results within the case classification. Therefore those two variables are not selected.
+```{r}
+covid_nyc <- covid_nyc %>% select(date_of_interest, CASE_COUNT, DEATH_COUNT)
+```
+
+### (3) Changing variable names for better readability
+```{r}
+covid_nyc <- covid_nyc %>% rename(date = date_of_interest,
+                                  nyc_cases = CASE_COUNT, nyc_deaths = DEATH_COUNT)
+```
+
+### (4) Checking the number of missing values
+```{r}
+covid_nyc %>% lapply(is.na) %>% sapply(sum)
+```
+* There are no missing values in the dataset.
+
+### (5) Changing the format of date values
+* covid_nyc dataset is going to be joined with complaint_data with respect to date variable.
+* Therefore, date value format of covid_nyc is changed in order to unify the format with date value format of complaint_data.
+```{r}
+covid_nyc$date <- covid_nyc$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+covid_nyc$date <- covid_nyc$date %>% as.Date
+covid_nyc %>% head(10)
+```
+
+### 3-3. Data EDA / Preprocessing: US COVID-19 Cases
+
+### (1) Checking the Dimension of the Dataset
+```{r}
+covid_us %>% dim
+```
+
+### (2) Deleting unnecessary variables
+* Checking the variable(column) names of the dataset
+```{r}
+covid_us %>% colnames
+```
+
+* Since we are interested in daily COVID-19 status, cdc_case_earliest_dt and death_yn variables are selected.
+* CDC recommends researchers use cdc_case_earliest_dt in time series and other analysis.
+* We are going to keep cdc_case_earliest_dt variable, which indicates confirmed date, and group the data with this variable.
+* Therefore the name of cdc_case_earliest_dt is changed to "date" for better readability and convenience of further analysis.
+```{r}
+covid_us <- covid_us %>% select(date = cdc_case_earliest_dt, death_yn)
+```
+
+### (3) Creating a Table with Daily Cases
+* To get the daily number of cases, the dataset is grouped by date variable, and then the number of cases are counted for each date value.
+```{r}
+covid_us_cases <- covid_us %>% group_by(date) %>% 
+  summarise(us_cases = n())
+```
+
+* To get the daily number of deaths, the dataset is grouped by date variable and death_yn variable, and then the number of deaths are counted for each combination of the variable values.
+* Since we are only interested in the number of deaths in each day, only the rows with death_yn value "Yes" is filtered.
+* death_yn indicates death status(Did the patient die due to the illness?)
+* It has total 4 values; Yes, No, Unknown and Missing
+```{r, message = FALSE}
+covid_us_deaths <- covid_us %>% group_by(date, death_yn) %>% 
+  summarise(us_deaths = n()) %>% filter(death_yn == "Yes") %>% 
+  select(date, us_deaths)
+```
+
+* covid_us_cases has more rows and therefore covid_us_cases and covid_us_deaths are left-joined.
+```{r, message = FALSE}
+covid_us <- left_join(covid_us_cases, covid_us_deaths, by = "date")
+covid_us
+```
+
+### (4) Checking missing values
+* Checking the number of missing values in the joined table
+```{r}
+covid_us %>% lapply(is.na) %>% sapply(sum)
+```
+
+* There are three missing values in us_deaths variable
+* NA means no death (NA was generated since there were no such dates in covid_us_deaths table)
+* Therefore NA's are changed to 0.
+```{r}
+covid_us %>% replace_na(list(us_deaths = 0))
+```
+
+### (5) Changing the format of date values
+* covid_us dataset is going to be joined with complaint_data with respect to date variable.
+* Therefore, date value format of covid_us is changed in order to unify the format with date value format of complaint_data.
+```{r}
+covid_us$date <- covid_us$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+covid_us$date <- covid_us$date %>% as.Date
+covid_us %>% head(10)
+```
+
+### 3-4. Data EDA / Preprocessing: Integrating the Datasets
+(1) Left joining complaint_data and covid_nyc datasets
+```{r, message = FALSE}
+data <- left_join(complaint_data, covid_nyc, by = "date")
+```
+
+(2) Left joining the integrated dataset and covid_us dataset
+```{r, message = FALSE}
+data <- left_join(data, covid_us, by = "date")
+```
+
+(3) Checking the final data
+* Final data table
+```{r}
+data
+```
+
+* Checking the last date
+```{r}
+data$date %>% max(na.rm = TRUE)
+```
+* This is valid since the last date of date in complaint_data is 2020-12-31
+
+```{r}
+data %>% write.csv("data_preprocessed.csv")
+```
+

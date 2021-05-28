@@ -1,0 +1,750 @@
+---
+title: "LDM_project_visualization"
+author: "Hyungyeong Hong"
+date: "5/25/2021"
+output: html_document
+---
+
+```{r, message = FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+```{r}
+data <- fread("data_preprocessed_3.csv")
+data <- data %>% select(-V1)
+data$precinct <- data$precinct %>% as.factor
+data
+```
+
+## data visualization
+
+일별
+```{r}
+data %>% filter(is.na(date) == FALSE) %>% select(date) %>% group_by(date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+  stat_smooth(color = "#660066", method = "lm") +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence (from 2006 to 2020)") +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+연도별
+```{r}
+year_tmp <- data %>% filter(is.na(date) == FALSE) %>% select(date) %>% mutate(year = as.factor(year(date))) %>% 
+  group_by(year) %>% summarise(count = n())
+
+year_tmp %>% 
+  ggplot(aes(x = year, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+  geom_point(aes(x = year[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = year[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = year_tmp$year[which(year_tmp$count == max(year_tmp$count)) + 2], y = max(year_tmp$count) + 10000, 
+           label = sprintf("max year: %s (total %d crimes)", 
+                           year_tmp$year[which(year_tmp$count == max(year_tmp$count))], max(year_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = year_tmp$year[which(year_tmp$count == min(year_tmp$count)) - 3], y = min(year_tmp$count) - 10000, 
+           label = sprintf("min year: %s (total %d crimes)", 
+                           year_tmp$year[which(year_tmp$count == min(year_tmp$count))], min(year_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Yearly Crime Occurrence (from 2006 to 2020)") +
+  xlab("Year") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+월별
+```{r}
+month_tmp <- data %>% filter(is.na(date) == FALSE) %>% select(date) %>% mutate(month = as.factor(month(date))) %>% 
+  group_by(month) %>% summarise(count = n())
+
+month_tmp %>% 
+  ggplot(aes(x = month, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+    geom_point(aes(x = month[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = month[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = month_tmp$month[which(month_tmp$count == max(month_tmp$count))], y = max(month_tmp$count) + 10000, 
+           label = sprintf("max month: %s (total %d crimes)", 
+                           month_tmp$month[which(month_tmp$count == max(month_tmp$count))], max(month_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = month_tmp$month[which(month_tmp$count == min(month_tmp$count)) + 2], y = min(month_tmp$count) - 10000, 
+           label = sprintf("min month: %s (total %d crimes)", 
+                           month_tmp$month[which(month_tmp$count == min(month_tmp$count))], min(month_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Monthly Crime Occurrence (from 2006 to 2020)") +
+  xlab("Month") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+
+```{r}
+data %>% select(borough) %>% filter(is.na(borough) == FALSE) %>%
+  group_by(borough) %>% summarise(count = n()) %>%
+  ggplot(aes(x = reorder(borough, -count), y = count, fill = borough)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Total Number of Crimes per Borough") +
+  xlab("Borough") +
+  ylab("Number of Crimes") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r}
+precinct_count <- data %>% select(precinct) %>% filter(is.na(precinct) == FALSE) %>% 
+  group_by(precinct) %>% summarise(count = n()) %>% arrange(count)
+
+precinct_count[1:5,] %>% rbind(precinct_count[(nrow(precinct_count)-4) : nrow(precinct_count), ]) %>% 
+  ggplot(aes(x = reorder(precinct, -count), y = count, fill = precinct)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  ggtitle("Top 5 and Low 5 Precincts in Total Number of Crimes") +
+  xlab("Precincts") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r}
+library(hms)
+data$time <- as_hms(data$time)
+```
+초는 의미가 없다고 판단함! (너무 세세함,  00으로만 표시된 경우도 허다함)  
+실제로 초만 뽑아서 보면
+```{r}
+data$time %>% second %>% as.data.frame %>% rename("second" = ".") %>% group_by(second) %>% summarise(count = n())
+```
+
+분의 경우에도 너무 세세하기는 하지만 일단 60분 + NA 까지 총 61개의 unique값 존재하긴 함!
+```{r}
+data$time %>% minute %>% as.data.frame %>% rename("minute" = ".") %>% group_by(minute) %>% summarise(count = n())
+```
+
+```{r}
+time_tmp <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>%
+  group_by(hour) %>% summarise(count = n())
+
+time_tmp %>% 
+  ggplot(aes(x = hour, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") +
+  geom_point(aes(x = hour[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = hour[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = time_tmp$hour[which(time_tmp$count == max(time_tmp$count))], y = max(time_tmp$count) + 20000, 
+           label = sprintf("max hour: %d (total %d crimes)", 
+                           time_tmp$hour[which(time_tmp$count == max(time_tmp$count))-1], max(time_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = time_tmp$hour[which(time_tmp$count == min(time_tmp$count))], y = min(time_tmp$count) - 20000, 
+           label = sprintf("min hour: %d (total %d crimes)", 
+                           time_tmp$hour[which(time_tmp$count == min(time_tmp$count))-1], min(time_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Hour") +
+  xlab("Hour") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(color = "#A6A39E"),
+    legend.position = "none"
+  )
+```
+
+max값을 가지는 15시만 뽑아서 분당 분포를 한번 보자~
+```{r}
+data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 15) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = minute, y = count)) +
+  geom_line(color = "#CC99CC", group = 1) +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Minute at 3PM") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+min값을 가지는 5시만 뽑아서 분당 분포를 한번 보자~
+```{r}
+data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 5) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = minute, y = count)) +
+  geom_line(color = "#CC99CC", group = 1) +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Minute at 5AM") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+
+웃기게도, 총 count 수는 다르지만 분포의 모양이 상당히 비슷하다.
+아무래도 분을 표기할때 제대로 표기를 하지 않는 것이 아닐까 하는 그런 생각
+```{r}
+data_3pm <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 15) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n())
+
+data_5am <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 5) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n())
+
+ggplot() +
+  geom_line(data = data_3pm, aes(x = minute, y = count), group = 1, color = "#FF9999") +
+  geom_line(data = data_5am, aes(x = minute, y = count), group = 1, color = "#FFCC00") +
+  theme_minimal() +
+  ggtitle("Distribution of the Total Number of Crimes per Minute") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+
+```{r, message = FALSE}
+data_minute <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time)), minute = as.factor(minute(time))) %>% group_by(hour, minute) %>% summarise(count = n())
+
+library(RColorBrewer)
+
+n_colors <- 24
+expanded_colors <- colorRampPalette(brewer.pal(8, "Set3"))(n_colors)
+
+data_minute %>% 
+  ggplot(aes(x = minute, y = count, group = hour)) +
+  geom_line(aes(color = hour)) +
+  theme_minimal() +
+  ggtitle("Distribution of the Total Number of Crimes per Minute") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.text = element_text(size = 7),
+    legend.title = element_text(size = 10, hjust = 0.5)
+  ) +
+  scale_color_manual(values = expanded_colors)
+```
+level 하나만 보거나, consequence 하나만 보기에는 너무 허전했음
+```{r, message = FALSE}
+data %>% filter(is.na(consequence) == FALSE & is.na(level) == FALSE) %>% select(level, consequence) %>% 
+  group_by(level, consequence) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = level, y = count, fill = consequence)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
+  ggtitle("Distribution of Consequences") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+```{r, message = FALSE}
+data %>% filter(is.na(consequence) == FALSE & is.na(level) == FALSE) %>% select(level, consequence) %>% 
+  group_by(level, consequence) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = level, y = log(count), fill = consequence)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
+  ggtitle("Distribution of Crime Levels and Consequences") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes (log transformed)") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+Description: 어떠한 유형의 범죄가 많이 일어났는지를 확인해보자!
+```{r}
+description_count <- data %>% filter(is.na(description) == FALSE) %>% select(description) %>% 
+  group_by(description) %>% summarise(count = n()) %>% arrange(count)
+
+description_count[(nrow(description_count)-19) : nrow(description_count), ] %>% 
+  ggplot(aes(x = reorder(description, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Top 20 Types of Crimes") +
+  xlab("Types of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r}
+premises_count <- data %>% filter(is.na(premises) == FALSE) %>% select(premises) %>% 
+  group_by(premises) %>% summarise(count = n()) %>% arrange(count)
+
+premises_count[(nrow(premises_count)-9) : nrow(premises_count), ] %>% 
+  ggplot(aes(x = reorder(premises, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Top 10 Premises in Total Number of Crimes") +
+  xlab("Premises") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r, message = FALSE}
+library(scales)
+
+suspect_plot1 <- data %>% filter(is.na(suspect_age) == FALSE) %>% select(suspect_age) %>%
+  group_by(suspect_age) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = suspect_age, y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_age, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Age of Suspects") +
+  xlab("Age") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+suspect_plot2 <- data %>% filter(is.na(suspect_sex) == FALSE) %>% select(suspect_sex) %>%
+  group_by(suspect_sex) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(suspect_sex, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_sex, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Sex of Suspects") +
+  xlab("Sex") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+suspect_plot3 <- data %>% filter(is.na(suspect_race) == FALSE) %>% select(suspect_race) %>%
+  group_by(suspect_race) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(suspect_race, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_race, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Distribution of Race of Suspects") +
+  xlab("Race") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   axis.text = element_text(size = 7),
+   legend.position = "none"
+ )
+
+suspect_plot1
+suspect_plot2
+suspect_plot3
+```
+
+```{r}
+victim_plot1 <- data %>% filter(is.na(victim_age) == FALSE) %>% select(victim_age) %>%
+  group_by(victim_age) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = victim_age, y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_age, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Age of Victims") +
+  xlab("Age") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+victim_plot2 <- data %>% filter(is.na(victim_sex) == FALSE) %>% select(victim_sex) %>%
+  group_by(victim_sex) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(victim_sex, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_sex, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Sex of Victims") +
+  xlab("Sex") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+victim_plot3 <- data %>% filter(is.na(victim_race) == FALSE) %>% select(victim_race) %>%
+  group_by(victim_race) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(victim_race, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_race, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Distribution of Race of Victims") +
+  xlab("Race") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   axis.text = element_text(size = 7),
+   legend.position = "none"
+ )
+
+victim_plot1
+victim_plot2
+victim_plot3
+```
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>% select(borough, date) %>% group_by(borough, date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count, color = borough)) +
+  geom_line() + 
+  stat_smooth(color = "black", method = "lm", size = 0.5) +
+  facet_wrap(facets=vars(borough), ncol = 2) +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence in each Borough (from 2006 to 2020)") +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+What happened to Manhattan in 2020?
+```{r}
+data %>% filter(is.na(date) == FALSE, borough == "MANHATTAN") %>% select(borough, date) %>% 
+  group_by(date) %>% summarise(count = n()) %>% filter(count == max(count))
+```
+Black Lives Matter protest was held in 2020-06-01  
+https://www.cnbc.com/2020/06/06/new-york-george-floyd-protest-photos-video.html  
+
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>%  mutate(year = as.factor(year(date))) %>% select(borough, year) %>% group_by(borough, year) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = year, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Yearly Crime Occurrence per Borough (from 2006 to 2020)") +
+  xlab("Year") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>%  mutate(month = as.factor(month(date))) %>% select(borough, month) %>% group_by(borough, month) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = month, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Monthly Crime Occurrence per Borough (from 2006 to 2020)") +
+  xlab("Month") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+```{r, message = FALSE}
+borough_time <- data %>% select(borough, time) %>% filter(is.na(time) == FALSE & is.na(borough) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>%
+  group_by(borough, hour) %>% summarise(count = n())
+
+borough_time %>% 
+  ggplot(aes(x = hour, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Hour in each Borough") +
+  xlab("Hour") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(color = "#A6A39E")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+```{r, message = FALSE}
+data %>% filter(is.na(level) == FALSE & is.na(borough) == FALSE) %>% select(borough, level) %>% 
+  group_by(borough, level) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = borough, y = count, group = level, fill = level)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel2") +
+  theme_minimal() +
+  ggtitle("Distribution of Consequences") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+```{r}
+PlotDesc <- function(data, num){
+  mycolors <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  desc <- data %>% filter(is.na(description) == FALSE & borough == boroughs[num]) %>% select(description, borough) %>% 
+  group_by(borough, description) %>% summarise(count = n()) %>% arrange(count)
+
+  desc_plot <- desc[(nrow(desc)-4) : nrow(desc), ] %>% 
+  ggplot(aes(x = reorder(description, count), y = count)) +
+  geom_bar(stat = "identity", fill = mycolors[num]) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(sprintf("Top 5 Types of Crimes in %s", boroughs_noncap[num])) +
+  xlab("Types of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+  )
+}
+```
+
+```{r, message = FALSE}
+bronx_plot <- PlotDesc(data, 1)
+brook_plot <- PlotDesc(data, 2)
+man_plot <- PlotDesc(data, 3)
+queens_plot <- PlotDesc(data, 4)
+staten_plot <- PlotDesc(data, 5)
+
+library(gridExtra)
+grid.arrange(bronx_plot, brook_plot, man_plot, queens_plot, staten_plot, vp=viewport(width=1, height=1))
+```
+```{r}
+PlotPrem <- function(data, num){
+  mycolors <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  prem <- data %>% filter(is.na(premises) == FALSE & borough == boroughs[num]) %>% select(premises, borough) %>% 
+  group_by(borough, premises) %>% summarise(count = n()) %>% arrange(count)
+
+  prem_plot <- prem[(nrow(prem)-4) : nrow(prem), ] %>% 
+  ggplot(aes(x = reorder(premises, count), y = count)) +
+  geom_bar(stat = "identity", fill = mycolors[num]) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(sprintf("Top 5 Premises in %s", boroughs_noncap[num])) +
+  xlab("Premise") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+  )
+}
+```
+
+```{r, message = FALSE}
+bronx_plot <- PlotPrem(data, 1)
+brook_plot <- PlotPrem(data, 2)
+man_plot <- PlotPrem(data, 3)
+queens_plot <- PlotPrem(data, 4)
+staten_plot <- PlotPrem(data, 5)
+
+library(gridExtra)
+grid.arrange(bronx_plot, brook_plot, man_plot, queens_plot, staten_plot, vp=viewport(width=1, height=1))
+```
+```{r}
+PlotVicSus <- function(data, num){
+  mycolors_vic <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  mycolors_sus <- c("#66CC99", "#993399", "#FF9900", "#6699CC", "#FF6666")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  vic_age_plot <- data %>% filter(is.na(victim_age) == FALSE & borough == boroughs[num]) %>% select(victim_age, borough) %>% 
+    group_by(borough, victim_age) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = victim_age, y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_age, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Age of Victims in %s", boroughs_noncap[num])) +
+    xlab("Age") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  vic_sex_plot <- data %>% filter(is.na(victim_sex) == FALSE & borough == boroughs[num]) %>% select(victim_sex, borough) %>% 
+    group_by(borough, victim_sex) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(victim_sex, -count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_sex, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Sex of Victims in %s", boroughs_noncap[num])) +
+    xlab("Sex") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  vic_race_plot <- data %>% filter(is.na(victim_race) == FALSE & borough == boroughs[num]) %>% select(victim_race, borough) %>% 
+    group_by(borough, victim_race) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(victim_race, count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_race, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    coord_flip() +
+    ggtitle(sprintf("Race of Victims in %s", boroughs_noncap[num])) +
+    xlab("Race") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  
+  sus_age_plot <- data %>% filter(is.na(suspect_age) == FALSE & borough == boroughs[num]) %>% select(suspect_age, borough) %>% 
+    group_by(borough, suspect_age) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = suspect_age, y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_age, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Age of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Age") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  sus_sex_plot <- data %>% filter(is.na(suspect_sex) == FALSE & borough == boroughs[num]) %>% select(suspect_sex, borough) %>% 
+    group_by(borough, suspect_sex) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(suspect_sex, -count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_sex, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Sex of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Sex") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  sus_race_plot <- data %>% filter(is.na(suspect_race) == FALSE & borough == boroughs[num]) %>% select(suspect_race, borough) %>% 
+    group_by(borough, suspect_race) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(suspect_race, count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_race, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    coord_flip() +
+    ggtitle(sprintf("Race of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Race") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+   plot_combined <- grid.arrange(vic_age_plot, sus_age_plot, vic_sex_plot, sus_sex_plot, vic_race_plot, sus_race_plot, 
+                                 nrow = 3, vp=viewport(width = 1, height = 1))
+   return(plot_combined)
+}
+```
+
+```{r, message = FALSE}
+bronx_plot <- PlotVicSus(data, 1)
+brook_plot <- PlotVicSus(data, 2)
+man_plot <- PlotVicSus(data, 3)
+queens_plot <- PlotVicSus(data, 4)
+staten_plot <- PlotVicSus(data, 5)
+```
+
