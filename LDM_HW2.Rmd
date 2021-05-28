@@ -1,0 +1,78 @@
+---
+title: "LDM_HW2"
+author: "2019313106 Hyungyeong Hong"
+date: "5/20/2021"
+output: html_document
+---
+
+### Part 1. Basic Settings  
+
+Loading required packages  
+```{r, message = FALSE}
+library(tidyverse)
+library(gcookbook)
+```
+
+Loading heightweight data from gcookbook library  
+```{r}
+data = heightweight
+data %>% head(10)
+```
+
+### Part 2. Preprocessing Data  
+Generating BMI column  
+```{r}
+data <- data %>% mutate(BMI = (weightLb / heightIn^2) * 703)
+data %>% head(10)
+```
+
+Generating ageGroup column for further grouping with respect to ageMonth column  
+Following the range in the given plot  
+```{r}
+data <- data %>%  mutate(
+          ageGroup = ifelse(ageMonth < 145, "<145",
+                            ifelse(ageMonth >= 145 & ageMonth < 155, "[145,155)", ">=155"))
+)
+data %>% head(10)
+```
+
+Grouping the data into three different age groups (by using ageMonth column)  
+```{r}
+data <- data %>% group_by(ageGroup)
+```
+
+### Part 3. Visualization  
+Visualizing the data by using ggplot2 library  
+```{r, fig.height = 5, fig.width = 5}
+plt1 <- data %>% ggplot(aes(x = ageGroup, y = BMI, fill = sex)) +
+  geom_boxplot(alpha = 0.6)
+
+plt2 <- plt1 + 
+  ggtitle("HW 2 Figure") +
+  xlab("Age Group") +
+  ylab("BMI")
+
+plt3 <- plt2 +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(color = "darkgray", size = 20, face = "bold"),
+    axis.title  = element_text(color = "darkgray", size = 15, face = "bold"),
+    axis.text.x  = element_text(color = "gray"),
+    axis.text.y  = element_text(color = "gray", angle = 90)
+  )
+
+plt4 <- plt3 +
+  coord_flip() +
+  scale_x_discrete(limits = c("<145", "[145,155)", ">=155"))
+
+plt_5 <- plt4 +
+  labs(fill = "Sex") +
+  scale_fill_brewer(labels = c("Female", "Male"), palette = "Set1") +
+  theme(legend.position = c(0.9, 0.15),
+        legend.background = element_blank(),
+        legend.title = element_text(color = "darkgray", face = "bold"),
+        legend.text = element_text(color = "gray"))
+
+plt_5
+```
+
