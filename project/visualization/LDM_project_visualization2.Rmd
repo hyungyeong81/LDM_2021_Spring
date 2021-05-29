@@ -1,0 +1,101 @@
+---
+title: "LDM_project_visualization2"
+author: "Hyungyeong Hong"
+date: "5/29/2021"
+output: html_document
+---
+```{r, message = FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+```{r}
+setwd("/Users/hyungyeonghong/Desktop/LDM_project")
+data <- fread("data_preprocessed_3.csv")
+data <- data %>% select(-V1)
+```
+
+Finding the splitting point
+```{r}
+start_point <- data %>% filter(nyc_cases != 0 | us_cases != 0 | nyc_deaths != 0 | us_deaths != 0) %>% select(index) %>% min
+```
+
+Splitting data to data without covid cases and with covid cases
+```{r}
+pre_data <- data %>% filter(index < start_point)
+post_data <- data %>% filter(index >= start_point)
+```
+
+going to analyze one-year data
+```{r}
+pre_data <- data %>% filter(year(date) == 2019)
+pre_data
+```
+
+```{r}
+post_data
+```
+
+```{r}
+PlotPerDay <- function(data, num){
+  base_colors <- c("#99CC33", "#CC99CC")
+  deep_colors <- c("#66CC99", "#993399")
+  years <- c("2019", "2020")
+  
+  data %>% filter(is.na(date) == FALSE) %>% select(date) %>% group_by(date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count)) +
+  geom_line(group = 1, color = base_colors[num]) + 
+  stat_smooth(color = deep_colors[num], method = "lm") +
+  theme_minimal() +
+  ggtitle(sprintf("Daily Crime Occurrence in %s", years[num])) +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 13, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 11, face = "bold")
+  )
+}
+```
+
+```{r, message = FALSE}
+library(gridExtra)
+library(grid)
+pre_plot <- PlotPerDay(pre_data, 1)
+post_plot <- PlotPerDay(post_data, 2)
+grid.arrange(pre_plot, post_plot, ncol = 2, vp=viewport(width=0.9, height=0.7))
+```
+This will be applied to post_data only
+
+"#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999"
+```{r}
+covid_count <- post_data %>% select(date, us_cases, us_deaths, nyc_cases, nyc_deaths) %>% group_by(date) %>% 
+  summarise(us_cases = sum(us_cases), us_deaths = sum(us_deaths), nyc_cases = sum(nyc_cases), nyc_deaths = sum(nyc_deaths)) %>% 
+  filter(is.na(date) == FALSE)
+  
+crime_count <- post_data %>% select(date) %>% group_by(date) %>% summarise(crimes = n()) %>% filter(is.na(date) == FALSE)
+
+count_tmp <- full_join(covid_count, crime_count, by = "date")
+
+count_data <- reshape2::melt(count_tmp ,  id.vars = "date", variable.name = "variables")
+count_data
+count_data %>% ggplot(aes(x = date, y = log10(value), color = variables)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence and COVID-19 Cases") +
+  xlab("Date") +
+  ylab("Counts (rescaled in log10)") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 10, face = "bold"),
+  )
+```
+
+### There seems no relationship -> Do linear regression! (in further data analysis section)
+```{r}
+fit <- lm(crimes ~ us_cases + nyc_cases + us_deaths + us_cases, data = count_tmp) # actually the variables are highly correlated
+summary(fit)
+```
+
+
+
