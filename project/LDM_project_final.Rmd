@@ -1,0 +1,2466 @@
+---
+title: "Analysis on Crimes of New York City"
+author: "2019313106 홍현경"
+date: "4/21/2021"
+output:
+  html_document:
+    df_print: paged
+---
+## Section 1. 프로젝트의 배경
+
+### 1. 프로젝트 진행 동기
+
+1. 개인적 경험  
+  + 성인이 된 후 처음으로 떠난 해외 여행인 뉴욕 여행에서 아시아 여성으로서 수많은 인종 차별을 경험하였습니다.  
+  + 따라서 여행 내내 안전하지 않음을 느꼈고, 한국과는 다른 치안에 놀라기도 하였습니다.  
+  + 여행 이후 미국 내에서의 , 좀 더 세부적으로는 뉴욕의 인종 차별 문제와 범죄 문제에 관심을 가지게 되었습니다.  
+  + 특히, 축적된 데이터를 이용하여 범죄에 취약한 요소들을 파악하고, 그 요소들에 맞게 지역별 위험도를 알려주는 간단한 프로그램이 있다면 해당 지역을 방문하는 사람들에게 큰 도움이 되지 않을까 생각을 하게 되었습니다.  
+  
+2. 오늘날 미국의 사회적 상황
+  + **조지 플로이드 사망 사건 및 그에 따른 전국적 인종차별 반대 시위**
+  + 2020년 5월 25일 미국 미네소타주 미니에폴리스 지역에서 백인 경찰의 과잉 진압으로 흑인 조지 플로이드가 사망하는 사건이 발생하였습니다.  
+  + 해당 경찰은 조지 플로이드를 체포한 후 그를 바닥에 엎드리게 한 뒤, 목 부분을 무릎으로 9분 이상 눌렀고 이로 인해 의식을 잃은 조지 플로이드는 병원으로 이송되었으나 사망했습니다.  
+  + 당시 조지 플로이드는 경찰들에게 숨을 쉴 수 없다며 수차례 말을 하였으나, 해당 경찰은 지속적으로 조지 플로이드를 저지하였습니다.  
+  + 조지 플로이드 사망 이후 흑인을 대상으로 한 경찰의 과잉 진압과 폭력성에 항의하는 시위가 전국적으로 발생하였습니다.  
+  + 해당 사건 이후 5일만에 미국의 75개 도시에서 항의 시위가 발생하게 되었습니다.  
+  + 시위 중에서는 폭력을 동원한 시위도 존재하였습니다. 필라델피아에서는 시위자들이 경찰차를 파손하였고, 가게를 약탈하기도 하였습니다. 산타모니카의 상점에서도 약탈 범죄가 일어났으며, 경찰의 과잉진압으로 사망 사건이 발생한 미니애폴리스에서는 유조차량이 수천명의 시위대를 향해 돌진하는 사건도 발생하였습니다.  
+  
+  + **애틀란타 총격 사건**
+  + 2021년 3월 16일 미국의 애틀란타에서, 아시아인이 운영하는 사업체를 타겟으로 한 총격 사건이 발생하였습니다.  
+  + 이 사건으로 인하여 4명의 한국인 여성을 포함한 6명의 아시아 여성이 희생되었고, 총 8명이 이 총격 사건으로 인하여 사망했습니다.  
+  + 시민들 사이에서는 해당 총격 사건이 인종 차별에 기반한 혐오 범죄라는 여론이 형성되었습니다.  
+  + 그러나, 체로키 카운티의 대변인은 이 사건이 혐오 범죄가 아니라고 확신하는듯한 발표를 하였습니다.  
+  + 해당 대변인은 피의자가 성 중독 문제를 겪고 있으며, 피의자가 범죄를 저지를 이유는 해당 성 중독 문제를 극복하기 위한 것이라고 언급하였습니다.  
+  + 게다가, 해당 대변인은 피의자가 "좋지 않은 하루"를 보낸 후 범죄를 저질렀다고 말하는 등 논란이 될 만한 발언을 하였고, SNS상에 중국과 코로나의 관계에 대한 내용을 담은 게시물을 업로드 하기도 하였습니다.
+  + 대다수의 아시아계 미국인들은 이 사건을 여성 혐오 사건으로 보고 있습니다.  
+
+  + **코로나19로 인한 미국 내 인종 차별 문제 대두**
+  + 다음은 저널을 인용한 자료입니다.  
+  + https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30792-3/fulltext  
+  + "Following the spread of COVID-10 from Wuhan, China, discrimination towards Chinese people has increased."  
+  + "President Donald Trump has referred to severe acute respiratory syndrome coronavirus 2 as the Chinese virus, linking the health threat to foreign policy and trade negotiations."  
+  + "Heath protection relies not only on a well-functioning health system with universal coverage, but also on social inclusion, justice and solidarity. In the absence of those factors, inequalities are magnified, and scapegoating persists, with discrimination remaining long after. Division and fear of others will lead to worse outcomes for all."  
+
+위의 사건들을 통해서 혐오 범죄의 발생에 대해 관심을 가지게 되었고, 인종 이외에도 범죄에 취약한 요인들이 더 존재할 것이라는 생각 역시 하게 되었습니다.  
+또한, 오늘날의 코로나19 확산으로 인해 범죄의 양상 역시 달라졌을 것이라는 의심도 하게 되었습니다.  
+따라서, 미국에서 인구가 가장 많은 도시인 뉴욕시의 범죄 발생 현황에 대한 자료를 분석하면서 범죄에 대한 인사이트를 도출하고자 이 프로젝트를 진행하게 되었습니다.  
+
+
+### 2. 분석의 필요성
+
+1. 범죄에 취약한 변수 파악
+ + 뉴욕시는 미국 내에서 인구가 가장 많은 도시이면서, 높은 인구 밀집도를 가진 도시입니다.  
+ + 2010년을 기준으로 한 자료에 따르면, 해당 지역에서는 800개 이상의 언어가 사용되고 있습니다.  
+ + 이와 같이 뉴욕시는 다문화, 다인종의 도시입니다. 따라서 혐오 문제와 인종 차별 문제가 지속적으로 논란이 되어 왔습니다.  
+ + 범죄 문제에 대응하기 위해서는 뉴욕시에서 어떠한 사회적 집단이 범죄에 취약한지를 파악하는 것이 중요합니다.  
+ + 그러나, 인종 외에도 시간대, 장소와 같이 범죄에 취약한 요인들은 얼마든지 존재할 수 있습니다.  
+ + 따라서, 범죄에 취약한 요인들을 분석하는 것은 범죄에 대한 경각심을 불러일으킴과 동시에, 범죄 예방을 위한 정책 수립의 방향성을 정하는 데에도 도움이 될 수 있습니다.  
+
+2. 범죄의 발생에 영향을 줄 수 있는 새로운 사회적 문제 대두
+
+![statistic_1](statistics_1.png) 
+![statistic_2](statistics_2.png) 
+
+다음은 [link](https://www1.nyc.gov/site/nypd/stats/stats.page)에서 제시된 차트입니다.  
+* 이 자료를 보면, 코로나19로 인한 팬데믹 상황 속에서 전반적인 범죄율이 하락한 것을 확인할 수 있습니다.  
+* 그러나, 이러한 추세 속에서도 bulgary나 shooting 사건의 경우는 큰 폭으로 증가한 것을 확인할 수 있습니다.  
+*  코로나19로 인하여 많은 가게들이 문을 닫았고, 재택근무가 늘어나게 되었습니다.
+*  이러한 상황 속에서, 사람이 없는 회사 건물, 그리고 문을 닫은 상점과 같은 장소에서의 범죄가 늘어났을 것이라는 의심을 해 볼 수 있습니다.
+*  코로나19로 인한 범죄 발상 양상에서의 변화를 파악하는 것은 이후 발생 가능한 범죄를 예방하고, 새로운 양상의 범죄 문제를 해결하는 데 도움이 될 수 있습니다.
+  
+
+### 3. 프로젝트 주제
+* Analysis on Crimes of New York City (미국 뉴욕시 범죄 발생 현황 분석 보고서)
+
+### 4. 프로젝트 목표
+1. 시각화를 기반으로 한 미국 뉴욕시의 전반적인 범죄 발생 현황 파악 및 범죄 관련 위험 요인 파악
+  + 자료 전처리 및 시각화 과정을 통하여 미국 뉴욕시의 전반적인 범죄 발생 현황, 그리고 범죄에 취약한 요인들(ex. 인종, 성별, 시간, 날짜 등)에는 어떠한 것들이 있는지 인사이트를 얻는 것을 주된 목표로 합니다.
+  
+2. 범죄 데이터를 기반으로 한 interactive map 생성
+  + 위도, 경도, 세부 지역 분류와 같은 공간적 정보를 이용하여 범죄 발생 현황에 대한 지도 시각화를 진행합니다.
+  + 지역 또는 세부적인 위치에 따라 범죄에 대한 세부적인 정보를 제공하는 것을 목표로 합니다.
+
+3. 코로나19 상황 속에서 범죄 발생 양상의 특징 파악
+  + 코로나19 확진자, 사망자 추이를 코로나의 심각성에 대한 지표로 삼아 코로나의 심각성과 범죄 발생 현황의 관계를 알아보기 위한 시각화 중심의 분석을 진행합니다.
+  + 코로나19 이전과는 범죄 발생 양상이 어떻게 달라졌는지를 코로나19 이전의 데이터와 코로나19 확산 이후의 데이터를 비교함으로써 파악합니다.
+  
+
+## Section 2. 데이터에 대한 간략한 설명
+
+### 1. NYPD_Complaint_Data_Historic.csv / NYPD Complaint Data Historic
+[link](https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i)  
+
+2006년부터 2019년까지 NYPD에 보고된 felony, misdemeanor, violation 범죄에 대한 데이터입니다.  
+
+
+### 2. NYPD_Complaint_Data_Current.csv / NYPD Complaint Data Current (Year to Date)
+[link](https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Current-Year-To-Date-/5uac-w243)  
+
+2020년 한 해 동안 NYPD에 보고된 felony, misdemeanor, violation 범죄에 대한 데이터입니다.  
+
+* 위의 두 데이터는 각각 2006년부터 2019년, 그리고 2020년에 뉴욕시에서 일어난 범죄에 대한 정보를 담고 있습니다.  
+* 두 데이터에는 범죄 발생 날짜, 시간, 연령대, 성별, 인종, 위치(위경도 정보 포함), 범죄의 level 및 분류, 범죄의 결과(completed or attempted)에 대한 정보를 담고 있습니다.
+* 두 데이터를 전처리 한 후 행을 기준으로 데이터를 병합해주면 2006년부터 2020년까지의 범죄에 대한 정보를 담은 하나의 데이터셋을 얻을 수 있습니다.
+* 혐오 범죄를 명시하는 데이터를 사용하지 않은 이유는, 조지 플로이드 사건과 같이 특정 사건이 정확히 혐오 범죄인지를 확정하는 것이 쉽지 않기 때문입니다. 게다가, "NYPD hate crimes" 데이터의 경우에는 2019년과 2020년의 자료만을 포함하기 때문에 이를 이용하여 뉴욕시의 전반적인 범죄 양상을 파악하는 것은 문제가 될 수 있습니다. 즉, 해당 자료는 상황에 대한 일반적인 정보를 전달하기에는 상당히 단편적이며, 불충분하다고 생각했습니다.
+* 위의 데이터에는 피해자 및 피의자의 인종을 비롯한 정보가 포함되어 있기 때문에, 혐오 범죄에 대한 명시적인 자료 없이도 관련 정보를 이끌어낼 수 있습니다.
+* 따라서, 위의 두 데이터를 이용하면 범죄에 대한 인사이트를 도출해 낼 수 있습니다.
+
+### 3. NYC_covid19_cases.csv / New York City COVID-19 cases
+[link](https://raw.githubusercontent.com/nychealth/coronavirus-data/master/trends/data-by-day.csv)  
+
+이 데이터는 02/29/2020부터 04/16/2021까지 뉴욕시의 코로나19 발생 현황에 대한 정보를 담고 있습니다.  
+
+이 데이터는 전처리 후 complaint_data에서 뉴욕시의 코로나19 확진자 수, 사망자 수를 나타내기 위한 변수로 사용될 것 입니다.  
+
+### 4. COVID-19_Case_Surveillance_Public_Use_Data.csv / U.S. COVID-19 cases
+[link](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf)  
+
+이 데이터는 01/01/2020부터 03/16/2021 까지 미국 전체의 코로나19 발생 현황에 대한 정보를 담고 있습니다.  
+
+이 데이터는 전처리 후 complaint_data에서 미국 전체의 코로나19 확진자 수, 사망자 수를 나타내기 위한 변수로 사용될 것 입니다.  
+
+미국은 면적이 매우 넓은 국가이므로 지역별 코로나19의 상황과 국가 전반적 코로나19의 상황에 차이가 존재할 수 있기 때문에 미국 전체의 코로나19 현황에 대한 데이터를 추가하였습니다.  
+
+## Section 3. 데이터 전처리
+
+### 1. 기본 세팅
+### (1) 패키지 불러오기
+```{r settings_packages, message=FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+```{r settings_wd, echo = FALSE}
+setwd("/Users/hyungyeonghong/Desktop/LDM_project")
+```
+
+### (2) 사용할 데이터 불러오기
+데이터의 사이즈가 매우 크기 때문에 data.table()의 fread()를 이용하여 csv 파일을 불러왔습니다.  
+```{r settings_files, message=FALSE}
+complaint_historic <- fread("NYPD_Complaint_Data_Historic.csv")
+complaint_current <- fread("NYPD_Complaint_Data_Current.csv")
+covid_nyc <- fread("NYC_covid19_cases.csv")
+covid_us <- fread("COVID-19_Case_Surveillance_Public_Use_Data.csv")
+```
+  
+ 
+### 3-1. NYPD complaint datasets 전처리
+
+### (1) 각 데이터의 차원 확인
+```{r data_dim}
+complaint_historic %>% dim
+complaint_current %>% dim
+```
+
+### (2) 각 데이터의 변수명 확인
+두 complaint 데이터를 row 기준으로 합쳐 뉴욕시의 범죄 현황을 타나내는 하나의 데이터셋을 만들 것이기 때문에, 두 데이터의 변수명이 일치하는지 확인을 해야 합니다.  
+
+데이터 처리의 효율성을 위해 변수명을 알파벳 순서로 재정렬하였습니다.  
+
+변수의 개수 역시 함께 출력하여 확인해보았습니다.  
+
+* 변수명 재정렬 및 변수의 개수 확인
+```{r data_historicVarNames}
+complaint_historic %>% colnames %>% sort %>% print %>% length
+```
+
+```{r data_currentVarNames}
+complaint_current %>% colnames %>% sort %>% print %>% length
+```
+
+* complaint_current은 complaint_historic과 달리 "New Georeferenced Column"이라는 변수를 하나 더 가지고 있는 것을 확인할 수 있습니다.
+* 두 데이터의 변수가 동일해야 하므로 해당 변수를 지워주었습니다.
+* 이 과정을 통해 두 데이터의 변수 명이 일치시켜주었습니다. 
+```{r data_matchVarNames}
+complaint_current <- complaint_current %>% select(-`New Georeferenced Column`)
+complaint_current %>% colnames %>% sort %>% print %>% length
+```
+
+
+### (3) 각 변수에 대한 설명
+* ADDR_PCT_CD: the precinct in which the incident occurred
+* BORO_NM: the name of the borough in which the incident occurred
+* CMPLT_FR_DT: exact date of occurrence for the reported event(starting date of occurrence)
+* CMPLT_FR_TM: exact time of occurrence for the reported event(starting time of occurrence) 
+* CMPLNT_NUM: randomly generated persistent ID for each complaint
+* CMPLNT_TO_DT: ending date of occurrence for the reported event, if exact time of occurrence is unknown
+* CMPLNT_TO_TM: ending time of occurrence for the reported event, if exact time of occurrence is unknown
+* CRM_ATPT_CPTD_CD: indicator of whether crime was successfully completed or attempted but failed or was interrupted prematurely
+* HADEVELOPT: name of NYCHA housing development of occurrence, if applicable
+* HOUSING_PSA: development level code
+* JURIS_DESC: description of the jurisdiction code
+* JURISDICTION_CODE: jurisdiction responsible for the incident
+* KY_CD: three digit offense classification code
+* Lat_Lon: geospatial location code (latitude and longitude combined)
+* Latitude: midblock latitude coordinate for global coordinate system
+* LOW_CAT_CD: level of offense; felony, misdemeanor, violation
+* LOC_OF_OCCUR_DESC: specific location of occurrence in or around the premises; inside, opposite of, front of, rear of
+* Longitude: midblock longitude coordinate for global coordinate system
+* OFNS_DESC: decription of offense corresponding with key code
+* PARKS_NM: name of NYC park, playground or greenspace of occurrence, if applicable (state parks are not included)
+* PATROL_BORO: the name of the patrol borough in which the incident occurred
+* PD_CD: three digit internal classification code(more granular than key code)
+* PD_DESC: description of internal classification corresponding with PD code (more granular than offense description)
+* PREM_TYP_DESC: specific description of premises; grocery store, residence, street, etc.
+* RPT_DT: date when the event was reported to police
+* STATION_NAME: transit station name
+* SUSP_AGE_GROUP: suspects' age group
+* SUSP_RACE: suspects' race description
+* SUSP_SEX: suspects' sex description
+* TRANSIT_DISTRICT: transit district in which the offense occurred
+* VIC_AGE_GROUP: victims' age group
+* VIC_RACE: victims' race description
+* VIC_SEX: victims' sex description
+* X_COORD_CD: x-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet(FIPS 3104)
+* Y_COORD_CD: y-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet(FIPS 3104)
+
+### (4) 불칠요한 변수 삭제
+각 데이터에는 총 35개의 변수가 있고, 이 중에는 분석에 불필요한 변수 역시 존재합니다.  
+불필요한 변수들이란 이 프로젝트의 목표와는 거리가 있는 변수들, 그리고 프로젝트에 있어서 유의미한 정보를 주지 못하는 변수를 의미합니다.  
+따라서, 총 18개의 불필요한 변수들을 제거하는 과정을 통해 데이터의 차원을 축소하였습니다.  
+
+* CMPLNT_NUM: randomly generated ID is unnecessary for further analysis
+* CMPLNT_TO_DT: we are only interested in the occurrence date/time of crimes
+* CMPLNT_TO_TM: we are only interested in the occurrence date/time of crimes 
+* HADEVELOPT: information related to NYC housing is unnecessary for further analysis
+* HOUSING_PSA: information related to NYC housing is unnecessary for further analysis
+* JURIS_DESC: most of its values are 0 and therefore this variable is not meaningful
+* JURISDICTION_CODE: most of its values are N.Y.POLICE DEPT and therefore this variable is not meaningful
+* KY_CD: offense classification codes do not give meaningful information and we already have the variable with the descriptions on crimes
+* Lat_Lon: we already have latitude and longitude variable
+* LOC_OF_OCCUR_DESC: the values of this variable is too specific - it provides unnecessary informations about locations
+* PARKS_NM: park names are too specific - we only need the information about general location such as borough, latitude and longitude
+* PATROL_BORO: we already have precinct variable, which indicates specific patrol borough
+* PD_CD: classification codes are not meaningful
+* RPT_DT: reported date is unnecessary - we are only interested in the occurrence date/timr of crimes
+* STATION_NAME: station names are too specific - we only need the information about general location such as borough, latitude and longitude
+* TRANSIT_DISTRICT: transit districts are too specific - we only need the information about general location such as borough, latitude and longitude
+* X_COORD_CD: we alrealy have latitude and longitude variable
+* Y_COORD_CD: we alrealy have latitude and longitude variable
+
+* complaint_historic 데이터의 불필요한 변수 삭제
+```{r data_historicVarSelect}
+complaint_historic <-
+  complaint_historic[, .(ADDR_PCT_CD, BORO_NM, CMPLNT_FR_DT, CMPLNT_FR_TM, CRM_ATPT_CPTD_CD, LAW_CAT_CD, OFNS_DESC, PD_DESC, PREM_TYP_DESC, SUSP_AGE_GROUP, SUSP_RACE, SUSP_SEX, VIC_AGE_GROUP, VIC_RACE, VIC_SEX, Latitude, Longitude)]
+
+complaint_historic %>% dim # Checking the number of variables
+```
+
+* complaint_current 데이터의 불필요한 변수 삭제
+```{r data_currentVarSelect}
+complaint_current <-
+  complaint_current[, .(ADDR_PCT_CD, BORO_NM, CMPLNT_FR_DT, CMPLNT_FR_TM, CRM_ATPT_CPTD_CD, LAW_CAT_CD, OFNS_DESC, PD_DESC, PREM_TYP_DESC, SUSP_AGE_GROUP, SUSP_RACE, SUSP_SEX, VIC_AGE_GROUP, VIC_RACE, VIC_SEX, Latitude, Longitude)]
+
+complaint_current %>% dim # Checking the number of variables
+```
+
+### (5) 가독성을 위한 변수명 변경
+기존 데이터의 경우 각 변수명의 가독성이 떨어진다고 판단하였습니다.  
+좀 더 명시적인 분석을 위하여 각 데이터의 변수명을 각 변수의 특성이 잘 드러나는 이름으로 바꾸어주었습니다.  
+
+* 새로운 변수명을 벡터화
+```{r data_setVarNames}
+original_varnames <- c("ADDR_PCT_CD", "BORO_NM", "CMPLNT_FR_DT", "CMPLNT_FR_TM", "CRM_ATPT_CPTD_CD", "LAW_CAT_CD", "OFNS_DESC", "PD_DESC", "PREM_TYP_DESC", "SUSP_AGE_GROUP", "SUSP_RACE", "SUSP_SEX", "VIC_AGE_GROUP", "VIC_RACE", "VIC_SEX", "Latitude", "Longitude")
+
+modified_varnames <- c("precinct", "borough", "date", "time", "consequence", "level", "description", "granular_description", "premises", "suspect_age", "suspect_race", "suspect_sex", "victim_age", "victim_race", "victim_sex", "latitude", "longitude")
+```
+
+* complaint_historic 데이터의 변수명 변경
+```{r data_historicVarChange}
+complaint_historic <- complaint_historic %>% setnames(original_varnames, modified_varnames)
+complaint_historic %>% colnames # Checking the modified variable names
+```
+
+* complaint_current 데이터의 변수명 변경
+```{r data_currentVarChange}
+complaint_current <- complaint_current %>% setnames(original_varnames, modified_varnames)
+complaint_current %>% colnames
+```
+
+### (6) 공백 확인
+각 데이터의 공백은 정보를 담고 있지 않기 때문에 NA로 처리를 해 주어야 한다고 판단하였습니다.  
+
+이를 위해 우선 각 데이터의 변수별로 공백 개수를 확인하였습니다.    
+
+만약 공백이 존재한다면, 해당 공백 값들을 모두 NA로 변환하였습니다.    
+
+공백의 개수를 계산하는 과정에서 ```na.rm = TRUE``` 는 colSums()의 결과가 NA로 반환되는 것을 방지하기 위하여 사용하였습니다. (각 변수에는 NA값이 존재할 수 있습니다)  
+
+* complaint_historic 데이터의 변수별 공백 확인
+```{r data_historicEmptyVals}
+(complaint_historic=="") %>% colSums(na.rm = TRUE)
+```
+
+* complaint_historic 데이터의 변수별 공백 NA로 변환
+```{r data_historicEmptyValsToNAs}
+complaint_historic[complaint_historic==""] <- NA
+```
+
+* complaint_current 데이터의 변수별 공백 확인
+```{r data_currentEmptyVals}
+(complaint_current=="") %>% colSums(na.rm = TRUE)
+```
+
+* complaint_current 데이터의 변수별 공백 NA로 변환
+```{r data_currentEmptyValsToNAs}
+complaint_current[complaint_current==""] <- NA
+```
+
+
+### (7) 결측치(NA) 확인
+
+각 데이터의 변수별로 ```is.na()```를 적용하여 변수별로 결측치 개수를 확인하였습니다.  
+
+결측치 개수의 결과는 하나의 벡터로 반환되도록 설정해주었습니다.    
+
+* complaint_historic 데이터의 결측치 확인
+```{r data_historicCheckNA}
+complaint_historic %>% lapply(is.na) %>% sapply(sum)
+```
+  * level을 제외한 모든 변수가 결측치를 가지고 있습니다.
+  * 특히 suspect_age, suspect_race and suspect_sex경우 전체 관측값의 절반 이상이 결측치임을 확인할 수 있습니다.
+  * 이후 데이터 전처리 과정에서 NA값을 처리하는 과정이 중요해보입니다.
+
+* complaint_current 데이터의 결측치 확인
+```{r data_currentCheckNA}
+complaint_current %>% lapply(is.na) %>% sapply(sum)
+```
+
+
+### (8) 각 변수별 unique 값 확인
+각 변수에 대한 탐색을 위해 변수별로 unique값을 확인하는 과정을 거쳤습니다.    
+
+Date, time, latitude와 longitude변수의 경우 unique값이 너무 많기 때문에 따로 결과를 출력하지는 않았습니다.  
+
+
+* complaint_historic 데이터의 unique값 리스트로 출력
+```{r data_historicUnique, results = 'hide'}
+complaint_historic[,-c("date", "time", "latitude", "longitude")] %>% lapply(unique) %>% lapply(sort)
+```
+
+* complaint_current 데이터의 unique값 리스트로 출력
+```{r data_currentUnique, results = 'hide'}
+complaint_current[,-c("date", "time", "latitude", "longitude")] %>% lapply(unique) %>% lapply(sort)
+```
+
+변수별로 unique 값을 좀 더 자세히 살펴보았습니다.    
+
+두 데이터를 하나로 합쳐 주어야 하기 때문에 변수의 값에 대해서도 통일성을 가져야 합니다.    
+
+따라서 각 데이터의 변수별로 unique 값을 확인하면서 변수의 값들에 통일성이 있는지 확인을 하였습니다.  
+
+
+* **borough**
+```{r data_historicCompareBorough}
+complaint_historic %>% 
+  anti_join(complaint_current, by="borough") %>% 
+  count(borough, sort=TRUE)
+```
+
+```{r data_currentCompareBorough}
+complaint_current %>% 
+  anti_join(complaint_historic, by="borough") %>% 
+  count(borough, sort=TRUE)
+```
+  * borough 변수에 대한 두 데이터의 unique값이 일치하는 것을 확인할 수 있습니다.
+
+* **consequence**
+```{r data_historicCompareConseq}
+complaint_historic %>% 
+  anti_join(complaint_current, by="consequence") %>% 
+  count(consequence, sort=TRUE)
+```
+
+```{r data_currentCompareConseq}
+complaint_current %>% 
+  anti_join(complaint_historic, by="consequence") %>% 
+  count(consequence, sort=TRUE)
+```
+
+* complaint_historic 데이터에는 NA값이 존재하지만, complaint_current 데이터에는 존재하지 않는 것을 확인할 수 있습니다.
+
+* **level**
+```{r data_historicCompareLevel}
+complaint_historic %>% 
+  anti_join(complaint_current, by="level") %>% 
+  count(level, sort=TRUE)
+```
+
+```{r data_currentCompareLevel}
+complaint_current %>% 
+  anti_join(complaint_historic, by="level") %>% 
+  count(level, sort=TRUE)
+```
+  * level 변수에 대한 두 데이터의 unique값이 일치하는 것을 확인할 수 있습니다.
+
+* **description**
+```{r data_historicCompareDesc}
+complaint_historic %>% 
+  anti_join(complaint_current, by="description") %>% 
+  count(description, sort=TRUE)
+```
+  * complaint_historic 데이터가 complaint_current보다 12개의 unique값을 더 가지고 있습니다.
+
+```{r data_currentCompareDesc}
+complaint_current %>% 
+  anti_join(complaint_historic, by="description") %>% 
+  count(description, sort=TRUE)
+```
+  * complaint_current의 unique 값들은 complaint_historic의 unique 값들에 포함이 되기 때문에 complaint_historic데이터의 unique 값에 대한 추가적인 처리는 하지 않았습니다.
+
+* **granular_description**
+```{r data_historicCompatreGran}
+complaint_historic %>% 
+  anti_join(complaint_current, by = "granular_description") %>% 
+  count(granular_description, sort = TRUE)
+```
+  * complaint_historic 데이터가 complaint_current보다 86개의 unique값을 더 가지고 있습니다.
+
+```{r data_currentCompareGran}
+complaint_current %>% 
+  anti_join(complaint_historic, by = "granular_description") %>% 
+  count(granular_description, sort = TRUE)
+```
+  * complaint_current 데이터가 complaint_hidtoric보다 1개의 unique값을 더 가지고 있습니다.
+  * complaint_current의 unique 값들은 complaint_historic의 unique 값들에 포함이 되기 때문에 complaint_historic데이터의 unique 값에 대한 추가적인 처리는 하지 않았습니다.
+  * complaint_current의 unique 값도 하나만 차이가 나기 때문에 추가적인 처리는 하지 않았습니다. 
+
+
+* **suspect_race**
+```{r data_historicCompareSusRace}
+complaint_historic %>% 
+  anti_join(complaint_current, by="suspect_race") %>% 
+  count(suspect_race, sort=TRUE)
+```
+  * complaint_historic 데이터가 complaint_current보다 1개의 unique값을 더 가지고 있습니다.
+
+```{r data_currentCompareSusRace}
+complaint_current %>% 
+  anti_join(complaint_historic, by="suspect_race") %>% 
+  count(suspect_race, sort=TRUE)
+```
+  * complaint_current의 unique 값들은 complaint_historic의 unique 값들에 포함이 되기 때문에 complaint_historic데이터의 unique 값에 대한 추가적인 처리는 하지 않았습니다.
+
+* **suspect_sex**
+```{r data_historicCompareSusSex}
+complaint_historic %>% 
+  anti_join(complaint_current, by="suspect_sex") %>% 
+  count(suspect_sex, sort=TRUE)
+```
+
+```{r data_currentCompareSusSex}
+complaint_current %>% 
+  anti_join(complaint_historic, by="suspect_sex") %>% 
+  count(suspect_sex, sort=TRUE)
+```
+  * suspect_sex 변수에 대한 두 데이터의 unique값이 일치하는 것을 확인할 수 있습니다.
+
+* **victim_race**
+```{r data_historicCompareVicRace}
+complaint_historic %>% 
+  anti_join(complaint_current, by="victim_race") %>% 
+  count(victim_race, sort=TRUE)
+```
+  * complaint_historic 데이터가 complaint_current보다 1개의 unique값을 더 가지고 있습니다.
+
+```{r data_currentCompareVicRace}
+complaint_current %>% 
+  anti_join(complaint_historic, by="victim_race") %>% 
+  count(victim_race, sort=TRUE)
+```
+  * complaint_current의 unique 값들은 complaint_historic의 unique 값들에 포함이 되기 때문에 complaint_historic데이터의 unique 값에 대한 추가적인 처리는 하지 않았습니다.
+
+* **victim_sex**
+```{r data_historicCompareVicSex}
+complaint_historic %>% 
+  anti_join(complaint_current, by="victim_sex") %>% 
+  count(victim_sex, sort=TRUE)
+```
+  * complaint_historic 데이터가 complaint_current보다 1개의 unique값을 더 가지고 있습니다.
+
+```{r data_currentCompareVicSex}
+complaint_current %>% 
+  anti_join(complaint_historic, by="victim_sex") %>% 
+  count(victim_sex, sort=TRUE)
+```
+  * complaint_current의 unique 값들은 complaint_historic의 unique 값들에 포함이 되기 때문에 complaint_historic데이터의 unique 값에 대한 추가적인 처리는 하지 않았습니다.
+
+* **date**        
+* complint_historic 데이터의 date변수 unique값 개수 확인
+```{r}
+complaint_historic$date %>% unique %>% length
+```
+  * 2006년부터 2019년은 총 14년입니다.
+  * 그러나, 8179 / 365는 약 22.4이므로, 위의 길이는 22년 이상의 연도에 대한 길이에 해당합니다.
+  * 따라서 date 변수의 unique 값에 대한 확인이 필요합니다.
+
+* **date: year**
+```{r}
+historic_years <- complaint_historic$date %>% str_sub(7, 10) %>% as.numeric
+historic_years %>% unique %>% sort(decreasing=TRUE)
+```
+  * 유효하지 못한 연도들이 존재하는 것을 확인할 수 있고, 이 값들은 제거되어야 합니다.
+  * 데이터 분석 과정에서 시간 변수가 큰 분류 기준으로 작용하기 때문에 유효하지 못한 시간적 정보를 담고 있는 경우 제거를 하기 위해 우선 하나의 벡터에 담아주었습니다.
+  
+```{r}
+historic_years_invalid <- which(historic_years < 2006)
+```
+
+* **date: month**
+```{r}
+complaint_historic$date %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+  
+* **date: day**
+```{r}
+complaint_historic$date %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들 역시 유효합니다. 
+  
+* complint_current 데이터의 date변수 unique값 개수 확인
+```{r}
+complaint_current$date %>% unique %>% length
+```
+  * 2020년은 총 366일입니다.
+  * 그러나, 이 데이터에는 1792개의 uniqu 값들이 존재합니다.
+  * 따라서 date 변수의 unique 값에 대한 확인이 필요합니다.
+
+* **date: year**
+```{r}
+current_years <- complaint_current$date %>% str_sub(7, 10) %>% as.numeric
+current_years %>% unique %>% sort(decreasing=TRUE)
+```
+  * 유효하지 못한 연도들이 존재하는 것을 확인할 수 있고, 이 값들은 제거되어야 합니다.
+  * 위의 과정과 마찬가지로 유효하지 못한 정보를 제거 하기 위해 우선 하나의 벡터에 담아주었습니다.
+  
+```{r}
+current_years_invalid <- which(current_years != 2020)
+```
+
+* **year: month**
+```{r}
+complaint_current$date %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+  
+* **year: day**
+```{r}
+complaint_current$date %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+
+* 유효하지 않은 date값들을 가진 행들을 모두 제거합니다.
+* 이후 각 데이터의 차원을 확인하는 과정을 거쳤습니다.
+```{r}
+complaint_historic <- complaint_historic[-historic_years_invalid]
+complaint_historic %>% dim
+```
+
+```{r}
+complaint_current <- complaint_current[-current_years_invalid]
+complaint_current %>% dim
+```
+
+* **precinct**    
+```{r}
+complaint_historic$precinct %>% unique %>% sort
+```
+  
+  * -99 precinct는 존재하지 않기 때문에 이 값들을 NA로 변환하였습니다.
+  
+```{r}
+complaint_historic[precinct == -99] <- NA
+```
+
+```{r}
+complaint_current$precinct %>% unique %>% sort
+```
+  * complaint_current데이터의 precinct 값은 유효합니다.
+
+* **time**    
+* complaint_historic데이터의 time 변수에 대한 unique 값을 확인합니다.
+
+* **time: hour**
+```{r}
+complaint_historic$time %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+
+**time: minute**
+```{r}
+complaint_historic$time %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+
+* **year: second**
+```{r}
+complaint_historic$time %>% str_sub(7, 8) %>% as.numeric %>% unique %>% sort
+```
+  * 초 단위의 정보는 유용하지 않아 보입니다.
+
+* complaint_current 데이터의 time 변수에 대한 unique 값을 확인합니다.
+
+* **time: hour**
+```{r}
+complaint_current$time %>% str_sub(1, 2) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+
+* **time: minute**
+```{r}
+complaint_current$time %>% str_sub(4, 5) %>% as.numeric %>% unique %>% sort
+```
+  * 이 값들은 유효합니다.
+
+* **time: second**
+```{r}
+complaint_current$time %>% str_sub(7, 8) %>% as.numeric %>% unique %>% sort
+```
+  * 역시 초 단위의 정보는 유용하지 않아 보입니다.
+
+* **victim_age**
+* complaint_historic 데이터의 victim_age에 대한 unique 값을 확인합니다.
+```{r}
+complaint_historic$victim_age %>% unique %>% sort
+```
+
+  * 연령대 적절 범위: "<18", "18-24", "25-44", "45-64", "65+"
+  * 따라서 유효하지 않은 부분의 값들은 모두 NA로 변환하였습니다. 
+  
+```{r}
+victim_age_invalid <- which((complaint_historic$victim_age != "<18") & (complaint_historic$victim_age != "18-24") & (complaint_historic$victim_age != "25-44") & (complaint_historic$victim_age != "45-64") & (complaint_historic$victim_age != "65+"))
+```
+
+```{r}
+complaint_historic$victim_age[victim_age_invalid] <- NA
+```
+
+```{r}
+complaint_historic$victim_age %>% unique %>% sort
+```
+
+* complaint_current 데이터의 victim_age 변수에 대한 처리도 해 주었습니다.
+```{r}
+victim_age_invalid <- which((complaint_current$victim_age != "<18") & (complaint_current$victim_age != "18-24") & (complaint_current$victim_age != "25-44") & (complaint_current$victim_age != "45-64") & (complaint_current$victim_age != "65+"))
+```
+
+```{r}
+complaint_current$victim_age[victim_age_invalid] <- NA
+```
+
+```{r}
+complaint_current$victim_age %>% unique %>% sort
+```
+
+* **suspect_age**
+* 위의 victim_age와 같은 과정을 반복하였습니다.
+
+* complaint_historic 데이터에 대한 처리
+```{r}
+suspect_age_invalid <- which((complaint_historic$suspect_age != "<18") & (complaint_historic$suspect_age != "18-24") & (complaint_historic$suspect_age != "25-44") & (complaint_historic$suspect_age != "45-64") & (complaint_historic$suspect_age != "65+"))
+```
+
+```{r}
+complaint_historic$suspect_age[suspect_age_invalid] <- NA
+```
+
+```{r}
+complaint_historic$suspect_age %>% unique %>% sort
+```
+
+
+* complaint_current 데이터에 대한 처리
+```{r}
+suspect_age_invalid <- which((complaint_current$suspect_age != "<18") & (complaint_current$suspect_age != "18-24") & (complaint_current$suspect_age != "25-44") & (complaint_current$suspect_age != "45-64") & (complaint_current$suspect_age != "65+"))
+```
+
+```{r}
+complaint_current$suspect_age[suspect_age_invalid] <- NA
+```
+
+```{r}
+complaint_current$suspect_age %>% unique %>% sort
+```
+
+
+* **latitude**
+* complaint_historic 데이터의 latitude 값의 범위를 확인합니다. 
+```{r}
+complaint_historic$latitude %>% range(na.rm = TRUE)
+```
+  * 최댓값이 뉴욕시의 latitude 범위에 들어가지 않습니다.
+
+  * minimum values, the 1st quartile, median, the 3rd quartile 그리고 maximum value를 확인하여 값의 대략적인 분포를 확인하였습니다. 
+```{r}
+complaint_historic$latitude %>% summary
+```
+
+  * 아래의 latitude 값들은 잘못 측정된 값일 가능성이 큽니다.
+```{r}
+complaint_historic[latitude >= 41]
+```
+  * 그러나, 이들은 지도 시각화 과정에서 잘못 들어간 값인지의 여부에 대한 정확한 판단이 가능하기 때문에 지금 단계에서 따로 NA로 변환을 하는 등의 처리는 해 주지 않았습니다.
+  
+* complaint_current 데이터의 latitude 값의 범위를 확인합니다. 
+```{r}
+complaint_current$latitude %>% range(na.rm = TRUE)
+```
+  * 뉴욕시의 latitude 범위와 일치하는 것을 확인할 수 있습니다.
+
+* **longitude**
+* complaint_historic 데이터의 longitude 값의 범위를 확인합니다. 
+```{r}
+complaint_historic$longitude %>% range(na.rm = TRUE)
+```
+  * 최솟값이 뉴욕시의 longitude 범위에 들어가지 않습니다.
+  
+  * minimum values, the 1st quartile, median, the 3rd quartile 그리고 maximum value를 확인하여 값의 대략적인 분포를 확인하였습니다. 
+```{r}
+complaint_historic$longitude %>% summary
+```
+
+  * 아래의 longitude 값들은 잘못 측정된 값일 가능성이 큽니다.
+```{r}
+complaint_historic[longitude <= -75]
+```
+  * 그러나, 이들 역시 지도 시각화 과정에서 잘못 들어간 값인지의 여부에 대한 정확한 판단이 가능하기 때문에 현 단계에서 따로 NA로 변환을 하는 등의 처리는 해 주지 않았습니다.
+  
+* complaint_current 데이터의 longitude 값의 범위를 확인합니다. 
+```{r}
+complaint_current$longitude %>% range(na.rm = TRUE)
+```
+  * 뉴욕시의 longitude 범위와 일치하는 것을 확인할 수 있습니다.
+
+
+### (9) 두 데이터 합치기
+
+두 데이터를 row 기준으로 병합합니다.    
+
+```{r}
+complaint_data <- rbind(complaint_historic, complaint_current)
+```
+
+병합한 데이터의 차원을 확인합니다.    
+
+```{r}
+complaint_data %>% dim
+```
+
+### (10) 추가 전처리: date 변수의 형식 변경
+
+date 변수의 형태를 character에서 date로 변환하였습니다.    
+
+```{r}
+# lubridate is not working
+# data.table format is also not working due to an error
+complaint_data$date <- complaint_data$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+complaint_data$date <- complaint_data$date %>% as.Date
+complaint_data %>% head(10)
+```
+
+데이터를 날짜순으로 재정렬합니다.    
+
+```{r}
+complaint_data <- complaint_data[order(date),]
+```
+
+데이터의 마지막 날짜를 확인합니다.    
+
+```{r}
+complaint_data[order(-date)][1, date]
+```
+따라서, 병합된 데이터셋의 마지막 날짜는 2020-12-31가 됩니다.  
+
+
+### 3-2. New York City COVID-19 Cases 전처리
+
+### (1) 데이터의 차원 확인
+```{r}
+covid_nyc %>% dim
+```
+
+### (2) 불필요한 변수 삭제
+
+데이터의 변수명을 확인합니다.  
+```{r}
+covid_nyc %>% colnames
+```
+
+이 프로젝트의 관심사는 일별 코로나19 확진자 수이기 때문에, date_of_interest, CASE_COUNT 그리고 DEATH_COUNT만 남기고 모두 삭제하였습니다.  
+
+* note: PROBABLE_CASE_COUNT and PROBABLE_DEATH_COUNT variables contain the positive cases with positive antigen test result. However, CSTE updated the position statement on August 5, 2020 to clarify the interpretation of antigen detection tests and serologic test results within the case classification.
+* 위와 같은 이유에서 PROBABLE_CASE_COUNT와 PROBABLE_DEATH_COUNT는 선택되지 않았습니다.  
+```{r}
+covid_nyc <- covid_nyc %>% select(date_of_interest, CASE_COUNT, DEATH_COUNT)
+```
+
+### (3) 가독성을 위한 변수명 변경
+```{r}
+covid_nyc <- covid_nyc %>% rename(date = date_of_interest,
+                                  nyc_cases = CASE_COUNT, nyc_deaths = DEATH_COUNT)
+```
+
+### (4) 결측치 확인
+```{r}
+covid_nyc %>% lapply(is.na) %>% sapply(sum)
+```
+데이터셋에 결측치가 존재하지 않습니다.    
+
+
+### (5) date 변수의 형식 변경
+covid_nyc 데이터는 complaint_data와 date를 기준으로 join될 것입니다.    
+
+따라서, complaint_data와 날짜 형식을 통일하였습니다.     
+
+```{r}
+covid_nyc$date <- covid_nyc$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+covid_nyc$date <- covid_nyc$date %>% as.Date
+covid_nyc %>% head(10)
+```
+
+### 3-3. US COVID-19 Cases 전처리
+
+### (1) 데이터의 차원 확인
+```{r}
+covid_us %>% dim
+```
+
+### (2) 불필요한 변수 제거
+
+데이터의 변수명을 확인합니다.    
+
+```{r}
+covid_us %>% colnames
+```
+
+이 프로젝트의 관심사는 일별 코로나19 확진자 수이기 때문에, cdc_case_earliest_dt 와 death_yn만 선택하였습니다. cdc_case_earliest_dt의 경우 변수명을 date로 변경하였습니다.  
+
+* note: CDC recommends researchers use cdc_case_earliest_dt in time series and other analysis.
+```{r}
+covid_us <- covid_us %>% select(date = cdc_case_earliest_dt, death_yn)
+```
+
+### (3) 일별 확진자 수 계산
+일별 확진자 수를 계산하기 위해 데이터를 date 변수 기준으로 그룹화 한 후, 각 date 값별로 case를 count하였습니다.    
+
+```{r}
+covid_us_cases <- covid_us %>% group_by(date) %>% 
+  summarise(us_cases = n())
+```
+
+일별 사망자 수를 계산하기 위해 데이터를 date, death_yn변수를 기준으로 그룹화를 해 준 후, 각 조합별로 case를 count하였습니다.     
+
+사망자를 필터링 하기 위해 death_yn 값이 "Yes" 인 경우만 뽑아냈습니다.    
+
+```{r, message = FALSE}
+covid_us_deaths <- covid_us %>% group_by(date, death_yn) %>% 
+  summarise(us_deaths = n()) %>% filter(death_yn == "Yes") %>% 
+  select(date, us_deaths)
+```
+
+* covid_us_cases의 행 개수가 더 많으므로covid_us_cases와 covid_us_deaths를 left-join 하였습니다.
+```{r, message = FALSE}
+covid_us <- left_join(covid_us_cases, covid_us_deaths, by = "date")
+covid_us
+```
+
+### (4) 결측치 확인
+데이터의 변수 별 결측치 수를 확인합니다.  
+
+```{r}
+covid_us %>% lapply(is.na) %>% sapply(sum)
+```
+* us+deaths에 3개의 결측치가 존재합니다. 
+* 이 결측치는 left_join시 생성된 것이기 때문에 NA는 사망자 수가 0임을 의미합니다.
+* 따라서 NA를 0으로 변환하였습니다.
+```{r}
+covid_us %>% replace_na(list(us_deaths = 0))
+```
+
+### (5) date 변수의 형식 변환
+covid_us 데이터는 complaint_data와 date를 기준으로 join될 것입니다.    
+
+따라서, complaint_data와 날짜 형식을 통일하였습니다.     
+
+```{r}
+covid_us$date <- covid_us$date %>%
+  str_replace("([0-9]{2})/([0-9]{2})/(20[0-9]{2})", "\\3-\\1-\\2")
+covid_us$date <- covid_us$date %>% as.Date
+covid_us %>% head(10)
+```
+
+### 3-4. 하나의 데이터셋 완성하기
+* complaint_data와 covid_nyc를 left_join합니다.
+```{r, message = FALSE}
+data <- left_join(complaint_data, covid_nyc, by = "date")
+```
+
+* 병합된 데이터에 covid_us데이터를 left_join합니다.
+```{r, message = FALSE}
+data <- left_join(data, covid_us, by = "date")
+```
+
+* 최종 데이터를 확인합니다.
+  * Final data table
+```{r}
+data
+```
+
+  * 마지막 날짜 확인
+```{r}
+data$date %>% max(na.rm = TRUE)
+```
+
+병합된 하나의 데이터셋을 csv파일로 저장합니다.    
+
+```{r}
+# data %>% write.csv("data_preprocessed.csv")
+```
+
+### Section 4. 병합된 데이터에 대한 추가적인 전처리: 결측치 처리
+
+앞서 전처리한 데이터를 불러옵니다.    
+
+```{r, message = FALSE}
+data <- fread("data_preprocessed.csv")
+```
+
+인덱스에 해당하는 column의 이름을 바꿔줍니다. 데이터의 전처리의 효율성을 위해 인덱스 column을 사용하였습니다.    
+
+```{r}
+data <- data %>% rename(index = V1)
+```
+
+전처리된 데이터를 확인합니다.    
+
+```{r}
+data
+```
+
+전처리된 데이터의 변수별 결측치 개수를 확인합니다.    
+
+```{r}
+data %>% lapply(is.na) %>% sapply(sum)
+```
+
+### Section 4-1. nyc_cases, nyc_deaths, us_cases, us_deaths 변수 결측치 처리
+코로나19 확진자가 처음으로 count되기 이전의 count 수는 모두 0이므로 NA값을 모두 0으로 변경하였습니다.  
+
+코로나19 확진자 집계 시작일 이후에는 NA값이 존재하지 않습니다.  
+
+```{r}
+data$nyc_cases <- data$nyc_cases %>% replace_na(0)
+data$nyc_deaths <- data$nyc_deaths %>% replace_na(0)
+data$us_cases <- data$us_cases %>% replace_na(0)
+data$us_deaths <- data$us_deaths %>% replace_na(0)
+data %>% lapply(is.na) %>% sapply(sum)
+```
+
+### Section 4-2. precinct 변수 결측치 처리
+
+#### 첫번째 시도: mice
+NA imputation에서 검증된 방법을 사용하고 싶어서 mice방법을 시도하였습니다.    
+
+lat, lon, precinct을 값으로 넣어준 후 mice 결과에서 precinct만 뽑아낸다면 결측치를 처리할 수 있을 것이라고 생각했습니다.    
+
+그러나, mice 방법은 최대 50개의 categories만 받을 수 있기 때문에, 77개의 precinct가 있는 이 프로젝트의 데이터에는 mice 방법을 사용할 수 없었습니다.     
+
+아래는 실제로 mice를 이용하기 위해 실행한 코드입니다. 실행하게 되면 category 수 초과로 인해 에러가 발생하기 때문에 모두 주석 처리 하였습니다.    
+
+```{r}
+# library(mice)
+# data$precinct <- data$precinct %>% as.factor
+# imp <- data %>% select(precinct, latitude, longitude)
+# imp <- mice(data, seed = 2021)
+```
+
+#### 두번째 시도: 딥러닝 모델링  
+
+precinct 변수 결측치 처리를 위해, 딥러닝 모델링을 이용하여 precinct를 분류하는 방법도 시도하였습니다.     
+
+latitude, longitude의 미세한 값의 차이에 따라 precinct가 77개로 구분되기 때문에 사실 성능에 대한 기대는 하지 않았지만, 시도는 해 보았습니다.    
+
+R에서도 tensorflow와 keras를 이용하여 딥러닝 모델링을 할 수 있지만, 지속적으로 에러가 발생해서 우선은 파이썬으로 모델링을 하였습니다.    
+
+그러나, 파라미터 조정, dropout 설정, 모델의 층 조정 등 많은 시도를 했음에도 불구하고 매우 좋지 못한 예측 정확도가 나왔기 때문에, 결측치 처리에 딥러닝 모델링은 사용할 수 없었습니다.   
+
+#### add some images of sample python codes and results here!
+
+### 세번째 시도(채택된 방법): shapefile과 inpolygon() 함수 이용
+뉴욕시의 precinct에 대한 shapefile은 각 precinct의 boundary에 대한 정보를 담고 있습니다.    
+
+이 boundary가 나타내는 면적 안에 특정 longitude, latitude 값이 포함되는지의 여부를 기준으로 precinct를 분류할 수 있습니다.    
+
+따라서, ```pracma``` 패키지의 ```inpolygon()``` 함수를 이용하여 latitude, longitude 값은 있지만 precinct가 분류되지 않은 관찰값들을 처리하였습니다.   
+
+
+* shapefile을 불러오고, 해당 shapefile에서 각 precinct(id), longitude(long), latitude(lat) 정보를 뽑아옵니다.
+* note: ```raster``` 패키지를 불러오면 ```dplyr``` 패키지와 충돌하여 ```dplyr```의 ```select()``` 함수가 제대로 작동하지 않는 문제가 지속적으로 발생했습니다. 해당 문제를 해결하기 위해 구글링도 해보고, 패키지도 다시 설치해보고, R도 다시 설치해보고, 심지어는 노트북 초기화도 해보았지만 이 문제를 해결하지 못하였습니다. 결국 알아낸 방법이 ```dplyr::select```로 직접 패키지를 명시해 주는 방법이었습니다. 따라서 아래의 코드에서는 ```dplyr```의 ```select()```를 모두 ```dplyr::select```로 불러오고 있습니다.
+
+```{r, message = FALSE}
+library(raster)
+
+nypp <- shapefile("nypp.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+nypp <- fortify(nypp, region = "Precinct")
+nypp <- nypp %>% dplyr::select(id, long, lat)
+```
+
+* inpolyon() 함수를 사용하기 위해 필요한 패키지를 불러옵니다. 
+```{r, message = FALSE}
+library(pracma)
+```
+
+* 데이터에서 index, precinct, longitude, latitude변수만 따로 뽑아낸 후, longitude, latitude 값은 있지만 precinct가 분류되지 않은 관찰값들만 뽑아서 sub data를 만들어주었습니다. 이 데이터에 NA imputation이 진행될 것입니다.
+* 이후 분류된 precinct 값을 저장하기 위한 데이터프레임을 하나 생성합니다. 데이터 처리의 효율성을 위해 sub data의 column에 있는 index를 그대로 넣어줬습니다. 이 데이터프레임의 각 column은 하나의 precinct에 대응합니다.
+* data의 precinct에서 unique값들을 뽑아 오름차순으로 정렬해줌으로써 분류에 사용될 precict에 대한 라벨을 생성합니다.
+* inpolygon()는특정 좌표가 boundary안에 존재하는 경우 1을 반환하고, 그 이외의 경우에는 0을 반환합니다.
+* 총 precinct의 수는 77개이므로 77번의 iteration을 통해 각 precinct별로 자신의 boundary안에 존재하는 latitude, longitude pair을 골라냅니다. 결과로 data_sub의 관찰값 수와 동일한 길이의 벡터가 반환되며, 이 벡터는 0과 1로만 이루어져 있습니다. 이 결과는 해당 precinct를 나타내는 데이터프레임의 column에 저장됩니다.
+* 하나의 관찰값이 여러 preinct로 분류되면 안되므로, 데이터프레임의 각 row별로(인덱스 제외) 합을 구해준 후, 합이 1인 관찰값들만 뽑아냅니다. 이제 이 관찰값들을 대상으로 최종적인 NA imputation이 진행될 것입니다.
+* 이 관찰값들의 index를 이용하여, 원래 데이터의 precinct 변수에 NA imputation을 진행합니다.
+```{r}
+data_sub <- data %>% dplyr::select(index, precinct, longitude, latitude) %>% filter(is.na(precinct) == TRUE) %>% filter(is.na(longitude) == FALSE & is.na(latitude) == FALSE)
+
+tmp_precinct <- data.frame(matrix(nrow = nrow(data_sub), ncol = 78))
+colnames(tmp_precinct) <- c("index", 1:77)
+tmp_precinct$index <- data_sub$index
+
+precinct_idx <- data$precinct %>% unique %>% sort
+
+# precinct가 연속된 숫자가 아닌데!!!! 1:77로 iteration하고 있었다!!!
+# nested for loop를 쓰게 되면 시간이 너무 오래 걸려서 이 방법을 사용할 수 밖에 없었다!!!
+
+for(i in 1:77){
+  nypp_sub <- nypp %>% filter(id == precinct_idx[i])
+  tmp_precinct[,i+1] <- inpolygon(data_sub$longitude, data_sub$latitude, nypp_sub$long, nypp_sub$lat, boundary = TRUE)
+}
+
+result <- tmp_precinct %>% dplyr::select(-index) %>% rowSums
+result_idx <- which(result == 1)
+tmp_precinct <- tmp_precinct[result_idx,]
+tmp_precinct
+
+for(i in 1:77){
+  true_rownum <- which(tmp_precinct[,i+1] == TRUE)
+  true_idx <- tmp_precinct$index[true_rownum]
+  precinct_classified <- precinct_idx[i]
+  data$precinct[true_idx] <- precinct_classified
+}
+
+data %>% dplyr::select(index, precinct) %>% filter(is.na(precinct) == TRUE)
+```
+
+### Section 4-3: borough 변수 결측치 처리
+
+각 borough별로 하위 precinct가 있다는 정보를 토대로, precinct 변수의 값을 이용하여 borough 변수에 대한 NA imputation을 진행합니다.    
+
+
+```{r}
+data %>% filter(is.na(borough) == TRUE) %>% dplyr::select(borough, precinct) %>% filter(is.na(precinct) == FALSE)
+```
+* borough별 precinct 확인 [link](https://www1.nyc.gov/site/nypd/bureaus/patrol/precincts-landing.page)
+* (can deal with 9443 NA's out of 11168 NA's)
+
+* Precinct 1~34: MANHATTAN
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct) 
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 1 & tmp$precinct <= 34)
+data$borough[idx] <- "MANHATTAN"
+```
+
+* Precinct 40~52: BRONX
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 40 & tmp$precinct <= 52)
+data$borough[idx] <- "BRONX"
+```
+
+* Precinct 60~94: BROOKLYN
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 60 & tmp$precinct <= 94)
+data$borough[idx] <- "BROOKLYN"
+```
+
+* Precinct 100~115: QUEENS
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 100 & tmp$precinct <= 115)
+data$borough[idx] <- "QUEENS"
+```
+
+* Precinct 120~123: STATEN ISLAND
+```{r}
+tmp <- data %>% dplyr::select(borough, precinct)
+idx <- which(is.na(tmp$borough) == TRUE & tmp$precinct >= 120 & tmp$precinct <= 123)
+data$borough[idx] <- "STATEN ISLAND"
+```
+
+결측치 처리 결과를 확인합니다.  
+
+```{r}
+data %>% lapply(is.na) %>% sapply(sum)
+```
+* note: Still, there are too many NA values in suspect_age, suspect_race, suspect_sex and victim_age variable. Therefore, these values will be just used for getting approximate information about the crimes, and will not be used for deeper analysis since the number of observations may affect the result of analysis.
+
+
+결측치 처리가 완료된 데이터를 csv파일로 저장합니다.    
+
+
+```{r}
+# data %>% write.csv("data_preprocessed_2.csv")
+```
+
+
+### Section 5. granular_description 변수의 유용성 검증
+정제된 데이터를 살펴보면서, granular_description 변수가 unique값이 너무 많아서 범죄를 대표하는 라벨로 사용하기에는 무리가 있다는 생각을 하게 되었습니다.    
+
+granular_description 변수를 이용하지 않고 상위 변수인 description 변수만 이용해도 충분할 것 같다는 생각을 하게 되었습니다.    
+
+데이터를 좀 더 자세히 들여다보면서 해당 변수의 삭제 여부를 결정하기 위해 아래와 같은 분석 과정을 거쳤습니다.    
+
+
+
+결측치 처리를 완료한 데이터를 불러옵니다.    
+
+
+```{r}
+data <- fread("data_preprocessed_2.csv")
+data <- data %>% dplyr::select(-V1)
+```
+
+변수의 유용성 검증 전에, precinct 변수의 factor처리가 되어있지 않은 것을 발견하여 추가로 factor 처리를 해 주었습니다.  
+
+```{r}
+data$precinct <- data$precinct %>% as.factor
+```
+
+우선 description 변수의 각 unique 값 별로 하위 변수인 granular_description 변수의 unique 값이 몇개 존재하는지를 확인할 수 있는 함수를 정의합니다.    
+
+
+```{r}
+desc_elements <- data %>% dplyr::select(description) %>% sapply(unique)
+length(desc_elements)
+```
+
+```{r}
+CheckDescLength <- function(data, desc_elements){
+  output_df <-data.frame(description = rep(NA, length(desc_elements)), count = rep(NA, length(desc_elements)))
+  
+  for(idx in 1:length(desc_elements)){
+    
+    desc_data <- data %>% dplyr::select(description, granular_description) %>% 
+    filter(description == desc_elements[idx,]) %>% dplyr::select(granular_description) %>% unique
+  
+    colnames(desc_data) <- desc_elements[idx, ]
+  
+    desc_length <- desc_data %>% sapply(length)
+  
+    names(desc_length) <- NULL
+    
+    output_df$description[idx] <- desc_elements[idx,]
+    output_df$count[idx] <- desc_length
+  }
+  
+  print(output_df)
+}
+```
+
+description 변수의 각 unique 값 별로 하위 변수인 granular_description 변수의 unique 값이 몇개 존재하는지 확인합니다.    
+
+
+```{r}
+desc_length <- CheckDescLength(data, desc_elements)
+```
+
+```{r}
+desc_length %>% summary
+```
+
+이상치에 해당하는 만큼의 개수를 가진 description 값들을 확인합니다.    
+
+
+```{r}
+desc_length %>% filter(count > 5 + 1.5 * (5 - 4)) %>% arrange(count)
+```
+
+description 변수의 각 unique 값 별로 하위 변수인 granular_description 변수의 unique 값들을 출력해주는 함수를 정의합니다.    
+
+
+```{r}
+CheckDesc <- function(data, desc_elements, description_name){
+  desc_data <- data %>% dplyr::select(description, granular_description) %>% 
+    filter(description == description_name) %>% dplyr::select(granular_description) %>% unique
+  
+  colnames(desc_data) <- description_name
+  
+  print(desc_data)
+}
+```
+
+이상치에 해당하는 만큼의 개수를 가진 description 값에 대응하는 granular_description 변수의 unique 값들을 확인합니다.    
+
+
+```{r}
+CheckDesc(data, dexc_elements, "MISCELLANEOUS PENAL LAW")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "GRAND LARCENY")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "ROBBERY")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "DANGEROUS DRUGS")
+```
+
+```{r}
+CheckDesc(data, desc_elements, "PETIT LARCENY")
+```
+이 값들은 범죄를 일반화하여 설명하기에는 너무 구체적이라고 판단하였습니다.    
+
+범죄의 분류에 있어서 이렇게 많은 값들은 불필요하다고 판단했습니다.    
+
+따라서, description 변수만으로도 이미 충분하다고 생각을 하였고, granular_description 변수를 데이터에서 지워주었습니다.    
+
+
+```{r}
+data <- data %>% dplyr::select(-granular_description)
+```
+
+정제된 데이터를 csv 파일로 저장합니다.    
+
+
+```{r}
+# data %>% write.csv("data_preprocessed_3.csv") 
+```
+
+
+### Section 6. 데이터 시각화
+
+패키지 충돌 문제를 해결하기 위해 패키지를 모두 detach 한 후 다시 불러오는 과정을 거쳤습니다.  
+
+```{r, message = FALSE}
+DetachPkg <- function(){
+  library(JGmisc)
+  detachAllPackages()
+
+  library(tidyverse)
+  library(data.table)
+  library(gridExtra)
+  library(grid)
+}
+
+DetachPkg()
+```
+
+앞서 저장한 데이터를 불러옵니다.  
+
+```{r}
+data <- fread("data_preprocessed_3.csv")
+data <- data %>% select(-V1)
+data$precinct <- data$precinct %>% as.factor
+data
+```
+
+#### Daily Crime Occurrence (from 2006 to 2020)
+```{r}
+data %>% filter(is.na(date) == FALSE) %>% select(date) %>% group_by(date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+  stat_smooth(color = "#660066", method = "lm") +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence (from 2006 to 2020)") +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* 일별로 보년 범죄의 증가와 감소가 반복되지만, 전체적인 추이를 보았을 때에는 범죄가 감소하고 있음을 확인할 수 있습니다.
+* 범죄 발생 건수 추이를 한눈에 알아보기 쉽도록 회귀선을 추가하였습니다. 회귀선을 통해 범죄의 발생 건수가 전반적으로 감소하는 추세임을 더 쉽게 확인할 수 있습니다.
+
+#### Yearly Crime Occurrence (from 2006 to 2020)
+```{r}
+year_tmp <- data %>% filter(is.na(date) == FALSE) %>% select(date) %>% mutate(year = as.factor(year(date))) %>% 
+  group_by(year) %>% summarise(count = n())
+
+year_tmp %>% 
+  ggplot(aes(x = year, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+  geom_point(aes(x = year[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = year[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = year_tmp$year[which(year_tmp$count == max(year_tmp$count)) + 2], y = max(year_tmp$count) + 10000, 
+           label = sprintf("max year: %s (total %d crimes)", 
+                           year_tmp$year[which(year_tmp$count == max(year_tmp$count))], max(year_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = year_tmp$year[which(year_tmp$count == min(year_tmp$count)) - 3], y = min(year_tmp$count) - 10000, 
+           label = sprintf("min year: %s (total %d crimes)", 
+                           year_tmp$year[which(year_tmp$count == min(year_tmp$count))], min(year_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Yearly Crime Occurrence (from 2006 to 2020)") +
+  xlab("Year") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* 범죄 발생 건수의 추이에 대해 조금 더 자세하게 알아보고자 date 변수에서 year 변수만 따오 추출한 후 플랏을 다시 그려보았습니다.
+* 앞의 시계열그래프와 같이 연도별로만 보았을 때에는 증가와 감소가 반복되는 양상을 보이지만, 전반적인 추이를 보면 해를 거듭할수록 범죄의 총 건수는 감소하는 추세임을 확인할 수 있습니다.
+* 특히, 프로젝트에 사용한 데이터에는 2020년 12월 31일까지의 범죄 정보, 즉 2020년의 범죄 정보가 모두 포함되어 있음에도 불구하고 범죄 건수가 전년도에 비해 큰 폭으로 감소한 것을 확인할 수 있습니다.
+* 이는 코로나19로 인해 사회적 활동이 제한되고, 지역이 봉쇄되기도 하면서 나타난 현상이 아닐까 하는 가설을 세워볼 수 있습니다.
+
+#### Monthly Crime Occurrence (from 2006 to 2020)
+```{r}
+month_tmp <- data %>% filter(is.na(date) == FALSE) %>% select(date) %>% mutate(month = as.factor(month(date))) %>% 
+  group_by(month) %>% summarise(count = n())
+
+month_tmp %>% 
+  ggplot(aes(x = month, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") + 
+    geom_point(aes(x = month[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = month[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = month_tmp$month[which(month_tmp$count == max(month_tmp$count))], y = max(month_tmp$count) + 10000, 
+           label = sprintf("max month: %s (total %d crimes)", 
+                           month_tmp$month[which(month_tmp$count == max(month_tmp$count))], max(month_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = month_tmp$month[which(month_tmp$count == min(month_tmp$count)) + 2], y = min(month_tmp$count) - 10000, 
+           label = sprintf("min month: %s (total %d crimes)", 
+                           month_tmp$month[which(month_tmp$count == min(month_tmp$count))], min(month_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Monthly Crime Occurrence (from 2006 to 2020)") +
+  xlab("Month") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* 이번에는 범죄의 계절적 추이를 파악해 보기 위해 date 변수에서 month에 해당하는 부분만 추출해서 월별 범죄 총 발생 건수에 대한 그래프를 그려 보았습니다. 
+* 그래프를 보면, 7월과 8월에 범죄의 발생 건수가 가장 많고, 2월에는 범죄의 발생 건수가 매우 적은 것을 확인할 수 있습니다.
+* 즉, 겨울철에는 범죄의 발생 건수가 비교적 적고, 기온이 올라갈수록 범죄의 발생 건수가 점점 증가하는 것을 확인할 수 있습니다.
+* 여름철에 뉴스에서 '불쾌지수'라는 말을 자주 접할 수 있듯이, 계절, 특히 기온이라는 변수가 사람들의 불쾌 지수를 높여 범죄의 발생 건수를 높였을 것이라는 가설을 세워볼 수 있습니다.
+
+#### Total Number of Crimes per Borough
+```{r}
+data %>% select(borough) %>% filter(is.na(borough) == FALSE) %>%
+  group_by(borough) %>% summarise(count = n()) %>%
+  ggplot(aes(x = reorder(borough, -count), y = count, fill = borough)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Total Number of Crimes per Borough") +
+  xlab("Borough") +
+  ylab("Number of Crimes") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 뉴욕시에는 총 5개의 borough가 존재합니다. 범죄의 발생에는 지역의 특성 역시 영향을 준다고 생각하여 borough별로 범죄의 총 발생 건수 분포 플랏을 그려보았습니다.
+* Brooklyn > Manhattan > Bronx > Queens > Staten Island 순으로 범죄의 발생 건수가 높게 나타났습니다.
+* 이 그래프를 통해 범죄의 발생 건수가 지역에 따라 큰 차이를 보임을 확인할 수 있으며, 범죄의 발생과 지역의 특성 간에는 상관관계가 존재할 것임을 알 수 있습니다.
+* 따라서, 각 지역별로 범죄의 양상을 분석해보고, 지역 간 발생한 범죄에 대한 비교가 이루어져야 합니다.
+* 그런데, borough는 지역별 범죄의 양상을 파악하기에는 범위가 너무 넓습니다.
+* 예를 들어, Manhattan의 경우에는 도심과 할렘이라는 두 특성이 공존하지만, borough를 기준으로 분석하였을 경우 도시의 분화된 양상을 반영하지 못합니다.
+* 따라서, borough를 좀 더 세부적으로 나눌 수 있는 precinct를 이용하여 그래프를 추가적으로 그려보았습니다.
+
+#### Top 5 and Low 5 Precincts in Total Number of Crimes
+```{r}
+precinct_count <- data %>% select(precinct) %>% filter(is.na(precinct) == FALSE) %>% 
+  group_by(precinct) %>% summarise(count = n()) %>% arrange(count)
+
+precinct_count[1:5,] %>% rbind(precinct_count[(nrow(precinct_count)-4) : nrow(precinct_count), ]) %>% 
+  ggplot(aes(x = reorder(precinct, -count), y = count, fill = precinct)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  ggtitle("Top 5 and Low 5 Precincts in Total Number of Crimes") +
+  xlab("Precincts") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 앞서 언급한 바와 같이, 지역의 분화된 특성을 반영하기 위해서 지역 분류 기준을 borough에서 precinct로 세분화하였습니다.
+* 지역 분류 기준을 세분화 한 후에도 여전히 지역별로 범죄의 발생 건수가 크게 차이가 나는 것을 확인할 수 있습니다.
+* 뉴욕시에는 총 77개의 precinct가 있는데, 77개의 barplot을 모두 그려내기에는 무리가 있다고 판단하여 범죄 발생 건수를 기준으로 범죄 발생 건수가 가장 많은 5개 지역과 가장 적은 5개의 지역을 추출해낸 후 그래프를 그렸습니다.
+* 각 precinct가 속한 borough는 다음과 같습니다.
+  * 75: Brooklyn, 43: Bronx, 44: Bronx, 40: Bronx, 14: Manhattan(Manhattan South Precinct) 111: Queens, 123: Staten Island, 76: Brooklyn, 100: Queens. 22: Manhattan(Central Park Precinct)
+  * 이때, 75와 76 precinct는 같은 Brooklyn에 속해 있고, precinct 번호가 1밖에 차이가 나지 않으므로 서로 붙어 있는 precinct라고 오해를 할 수도 있는데, 두 precinct는 서로 먼 지역입니다.
+  * 76 precinct는 Manhattan 남부 지역에 붙어 있고, 75 precinct는 Queens 지역에 붙어 있습니다.
+  
+#### Total Number of Crimes per Hour
+* time 변수를 시간단위로 나누어서 시각화 하기 전에, 시, 분, 초에는 어떠한 값들이 있는지 우선 확인을 해 주었습니다.
+```{r}
+library(hms)
+data$time <- as_hms(data$time)
+```
+
+* 초 단위 추출
+```{r}
+data$time %>% second %>% as.data.frame %>% rename("second" = ".") %>% group_by(second) %>% summarise(count = n())
+```
+  * 초 단위의 정보는 의미가 없어 보입니다.
+
+* 분 단위 추출
+```{r}
+data$time %>% minute %>% as.data.frame %>% rename("minute" = ".") %>% group_by(minute) %>% summarise(count = n())
+```
+  * 분의 경우에도 분석의 기준으로 삼기에는 너무 세세하지만 60분 + NA 까지 총 61개의 unique값 존재하는 것을 확인할 수 있습니다.
+
+```{r}
+time_tmp <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>%
+  group_by(hour) %>% summarise(count = n())
+
+time_tmp %>% 
+  ggplot(aes(x = hour, y = count)) +
+  geom_line(group = 1, color = "#CC99CC") +
+  geom_point(aes(x = hour[which(count == max(count))], y = max(count)), color = "#660066") +
+  geom_point(aes(x = hour[which(count == min(count))], y = min(count)), color = "#660066") +
+  annotate("text",
+           x = time_tmp$hour[which(time_tmp$count == max(time_tmp$count))], y = max(time_tmp$count) + 20000, 
+           label = sprintf("max hour: %d (total %d crimes)", 
+                           time_tmp$hour[which(time_tmp$count == max(time_tmp$count))-1], max(time_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  annotate("text",
+           x = time_tmp$hour[which(time_tmp$count == min(time_tmp$count))], y = min(time_tmp$count) - 20000, 
+           label = sprintf("min hour: %d (total %d crimes)", 
+                           time_tmp$hour[which(time_tmp$count == min(time_tmp$count))-1], min(time_tmp$count)),
+           fontface = 2,
+           color = "#660066")+
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Hour") +
+  xlab("Hour") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(color = "#A6A39E"),
+    legend.position = "none"
+  )
+```
+
+* 범죄가 가장 많이 발생하는 시간대가 언제인지 알아보기 위해, time 변수를 이용해서, 시간대별로 범죄의 총 발생 건수에 대한 그래프를 그려 보았습니다.
+* 초 단위의 정보는 의미가 없고, 분 단위의 정보는 너무 세세하기에 시간 단위로 그래프를 그려 범죄에 취약한 시간대를 파악했습니다.
+* 그래프를 보면, 심야 시간대에는 범죄 발생 건수가 적고, 낮 시간대에 범죄가 주로 발생하는 것을 확인할 수 있습니다.
+* 특히, 오전 5시의 범죄 발생 건수가 가장 적었고, 오후 3시의 범죄 발생 건수가 가장 많은 것으로 나타났습니다.
+
+* 분 단위의 분포도 한번 확인해 보고 싶어 max값을 가지는 15시만 뽑아서 분 당 분포를 확인하였습니다.
+```{r}
+data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 15) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = minute, y = count)) +
+  geom_line(color = "#CC99CC", group = 1) +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Minute at 3PM") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+
+* 상당히 규칙적인 분포가 나타나는 것을 확인하였고, 따라서 min값을 가지는 5시의 분 당 분포도 확인하였습니다. 
+```{r}
+data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 5) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = minute, y = count)) +
+  geom_line(color = "#CC99CC", group = 1) +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Minute at 5AM") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+
+
+* 두 그래프의 분포 형태가 비슷하게 나타났습니다. 조금 더 시각적인 표현을 위해 오후 3시와 오전 5시의 분 당 분포를 합쳐서 표현해 보았습니다. 
+```{r}
+data_3pm <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 15) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n())
+
+data_5am <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>% filter(hour == 5) %>% 
+  mutate(minute = as.factor(minute(time))) %>% group_by(minute) %>% summarise(count = n())
+
+ggplot() +
+  geom_line(data = data_3pm, aes(x = minute, y = count), group = 1, color = "#FF9999") +
+  geom_line(data = data_5am, aes(x = minute, y = count), group = 1, color = "#FFCC00") +
+  theme_minimal() +
+  ggtitle("Distribution of the Total Number of Crimes per Minute") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.position = "none"
+  )
+```
+
+* 분 단위에서 흥미로운 분포가 나타났기 때문에 분 단위의 전체적인 분포 역시 확인해 보고 싶었습니다. 따라서 전체 분 당 분포에 대한 그래프를 그려주었습니다.
+```{r, message = FALSE}
+data_minute <- data %>% select(time) %>% filter(is.na(time) == FALSE) %>% mutate(hour = as.factor(hour(time)), minute = as.factor(minute(time))) %>% group_by(hour, minute) %>% summarise(count = n())
+
+library(RColorBrewer)
+
+n_colors <- 24
+expanded_colors <- colorRampPalette(brewer.pal(8, "Set3"))(n_colors)
+
+data_minute %>% 
+  ggplot(aes(x = minute, y = count, group = hour)) +
+  geom_line(aes(color = hour)) +
+  theme_minimal() +
+  ggtitle("Distribution of the Total Number of Crimes per Minute") +
+  xlab("Minute") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(angle = 90, color = "#A6A39E", size = 7),
+    legend.text = element_text(size = 7),
+    legend.title = element_text(size = 10, hjust = 0.5)
+  ) +
+  scale_color_manual(values = expanded_colors)
+```
+
+* 모든 시간대의 분 단위의 분포가 거의 동일한 것을 확인할 수 있습니다.
+* 우리는 보통 시간을 표현할 때 5분, 10분 단위로 대략적인 시간을 표현하는 경향이 있습니다.
+* 위의 그래프를 보면, 5분 단위로 그래프가 뾰족하게 솟아오르는 것을 확인할 수 있습니다.
+* 범죄 발생에 대해서 분 단위의 시간까지 세세하게 기록하기는 어렵기 때문에 대략적인 시간을 표현하는 경향성이 반영되어 위와 같은 상황이 발생한 것이 아닐까 하는 생각을 하게 되었습니다. 
+
+
+#### Distribution of Crime Levels and Consequences
+```{r, message = FALSE}
+data %>% filter(is.na(consequence) == FALSE & is.na(level) == FALSE) %>% select(level, consequence) %>% 
+  group_by(level, consequence) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = level, y = count, fill = consequence)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
+  ggtitle("Distribution of Crime Levels and Consequences") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* 범죄의 level, 그리고 범죄의 결과에 대한 그래프를 그려보았습니다.
+* 범죄의 level에 따른 결과를 보면 MISDEMEANOR > FELONY > VIOLATION 순으로 범죄 발생 빈도가 높은 것을 확인할 수 있습니다. 
+* 위법행위에 해당하는, 가장 낮은 수준의 범죄인 VIOLATION의 발생 건수가 가장 낮게 나타났고, 오히려 경범죄가 가장 많이 일어났습니다. 
+* 흉악 범죄는  VIOLATION의 2배 이상에 해당하는 발생 건수를 기록하였습니다.
+* 또한, 범죄의 결과(consequence)를 보면 attempted에 비해 completed가 월등히 높은 것을 확인할 수 있습니다.
+
+```{r, message = FALSE}
+data %>% filter(is.na(consequence) == FALSE & is.na(level) == FALSE) %>% select(level, consequence) %>% 
+  group_by(level, consequence) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = level, y = log(count), fill = consequence)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
+  ggtitle("Distribution of Crime Levels and Consequences") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes (log transformed)") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* attempted에 해당하는 부분을 자세히 들여다 보기 위해서는 scale 조정이 필요했기에 y축에 대해 로그 변환을 한 후 그래프를 다시 그려보았습니다.
+* Felony = 흉악 범죄, Misdemeanor = 경범죄, Violation = 위법행위 이므로 범죄의 level은 Felony > Misdemeanor > Violation으로 볼 수 있습니다.
+* 시각화 결과, 범죄의 level이 높을수록 attempted의 빈도가 더 높은 것을 확인할 수 있습니다.
+
+#### Description: Top 20 Types of Crimes
+```{r}
+description_count <- data %>% filter(is.na(description) == FALSE) %>% select(description) %>% 
+  group_by(description) %>% summarise(count = n()) %>% arrange(count)
+
+description_count[(nrow(description_count)-19) : nrow(description_count), ] %>% 
+  ggplot(aes(x = reorder(description, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Top 20 Types of Crimes") +
+  xlab("Types of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 전체 기간을 대상으로 어떠한 종류의 범죄가 빈번하게 일어났는지를 파악하기 위해 description변수를 이용하여 그래프를 그려보았습니다.
+* 전체 카테고리를 bar plot으로 표현하기에는 한계가 있었기 때문에, 빈도 수가 가장 높은 상위 20개의 카테고리만을 뽑아낸 후 그래프를 그렸습니다.
+* 경절도죄인 PETIT LARCENY 가 가장 많이 일어났고, 그 뒤를 Seconf Degree Harassment인 HARASSMENT 2가 이었습니다. HARASSMENT 2는 스토킹과 같은 범죄를 포함합니다.
+* 세번째로 높은 빈도를 기록한 범죄는 ASSAULT 3 & RELATED OFFENSES, 즉 thied degree assault였고, 이는 타인에게 의도적으로 상해를 입히는 범죄를 포함합니다.
+
+
+#### Top 10 Premises in Total Number of Crimes
+```{r}
+premises_count <- data %>% filter(is.na(premises) == FALSE) %>% select(premises) %>% 
+  group_by(premises) %>% summarise(count = n()) %>% arrange(count)
+
+premises_count[(nrow(premises_count)-9) : nrow(premises_count), ] %>% 
+  ggplot(aes(x = reorder(premises, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Top 10 Premises in Total Number of Crimes") +
+  xlab("Premises") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 어떠한 장소에서 범죄가 빈번하게 일어나는 지에 대해 알아보기 위해 premises 변수를 이용하여 그래프를 그려보았습니다.
+* 역시 카테고리의 수가 너무 많아 전체 카테고리를 하나의 plot으로 표현하는 데 한계가 존재하였기 때문에, 범죄 발생 건수 기준 상위 10개의 precinct 값들만 뽑아낸 후 시각화를 진행하였습니다. 
+* 시각화 결과, 길거리, 그리고 아파트에서 대다수의 범죄가 발생한 것을 확인할 수 있었습니다.
+
+#### Distribution of Age, Sex and Race of Suspects
+```{r, message = FALSE}
+library(scales)
+
+suspect_plot1 <- data %>% filter(is.na(suspect_age) == FALSE) %>% select(suspect_age) %>%
+  group_by(suspect_age) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = suspect_age, y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_age, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Age of Suspects") +
+  xlab("Age") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+suspect_plot2 <- data %>% filter(is.na(suspect_sex) == FALSE) %>% select(suspect_sex) %>%
+  group_by(suspect_sex) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(suspect_sex, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_sex, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Sex of Suspects") +
+  xlab("Sex") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+suspect_plot3 <- data %>% filter(is.na(suspect_race) == FALSE) %>% select(suspect_race) %>%
+  group_by(suspect_race) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(suspect_race, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = suspect_race, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Distribution of Race of Suspects") +
+  xlab("Race") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   axis.text = element_text(size = 7),
+   legend.position = "none"
+ )
+
+suspect_plot1
+suspect_plot2
+suspect_plot3
+```
+
+* Suspect의 나이, 성별, 인종별 분포를 확인하기 위해 그래프를 그려보았습니다. 
+* Age의 경우 25세-44세가 절반 이상을 차지하였습니다. 
+* Suspect의 경우 남성이 대다수를 차지했으며, 인종을 기준으로 보았을 때에는 흑인이 가장 많았습니다.
+* 그러나, suspect 변수의 경우 앞서 확인한 바와 같이 결측치가 전체 데이터의 절반 이상을 차지하기 때문에 이 결과를 일반화 하기에는 무리가 있다고 판단하였습니다.
+
+#### Distribution of Age, Sex and Race of Victims
+```{r}
+victim_plot1 <- data %>% filter(is.na(victim_age) == FALSE) %>% select(victim_age) %>%
+  group_by(victim_age) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = victim_age, y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_age, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Age of Victims") +
+  xlab("Age") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+victim_plot2 <- data %>% filter(is.na(victim_sex) == FALSE) %>% select(victim_sex) %>%
+  group_by(victim_sex) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(victim_sex, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_sex, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  theme_minimal() +
+  ggtitle("Distribution of Sex of Victims") +
+  xlab("Sex") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   legend.position = "none"
+ )
+
+victim_plot3 <- data %>% filter(is.na(victim_race) == FALSE) %>% select(victim_race) %>%
+  group_by(victim_race) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = reorder(victim_race, count), y = count)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  geom_text(aes(x = victim_race, y = count + sum(count)*0.02, label = percent(count/sum(count))), size = 3) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle("Distribution of Race of Victims") +
+  xlab("Race") +
+  ylab("Number of Crimes") +
+  theme(
+   panel.grid = element_line(color = "#F5F5F5"),
+   plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+   axis.title = element_text(size = 12, face = "bold"),
+   axis.text = element_text(size = 7),
+   legend.position = "none"
+ )
+
+victim_plot1
+victim_plot2
+victim_plot3
+```
+
+* 이번에는 victims의 나이별, 성별, 인종별 분포를 확인해 보기 위해 시각화를 진행하였습니다.
+* 시각화 결과, 나이는 suspect와 비슷한 분포를 보이는 것을 확인할 수 있었고, 역시 25세-44세가 가장 많았습니다. 45-64세의 비율이 suspect에 비해 조금 더 높은 것을 확인할 수 있었습니다.
+* 성별을 기준으로 볼 때 victims에서 가장 큰 비율을 차지하는 그룹은 여성이었으나, 남성의 비율과 크게 차이가 나지 않는 것을 확인할 수 있었습니다.
+* 인종을 기준으로 볼 때는 unknown의 수가 가장 많지만, unknown을 제외하고 볼 때는 흑인의 비율이 가장 높은 것을 확인할 수 있습니다.
+
+#### Daily Crime Occurrence in each Borough (from 2006 to 2020)
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>% select(borough, date) %>% group_by(borough, date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count, color = borough)) +
+  geom_line() + 
+  stat_smooth(color = "black", method = "lm", size = 0.5) +
+  facet_wrap(facets=vars(borough), ncol = 2) +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence in each Borough (from 2006 to 2020)") +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+* 앞서 언급한 바와 같이 지역별 범죄 발생 건수의 유의미한 차이를 확인하여 각 지역별로 분석을 진행하였습니다.
+* 우선, 각 지역별로 범죄 발생 건수의 일별 추이를 살펴보았습니다.
+* 77개의 precinct 값에 대한 그래프를 모두 그리는 것은 무리라고 판단하여, 조금 더 넓은 단위인 borough를 이용하여 추이를 파악하기 위한 시각화를 진행하였습니다.
+* 다섯 지역 모두 그래프에 회귀선을 추가하여, 범죄가 전반적으로 감소하고 있는 추세임을 확인하였습니다.
+* 그런데, Manhattan의 그래프에서 2020년에 범죄 발생 건수가 급격히 증가하는 날짜가 존재하였고, 따라서 이를 확인해보았습니다. 
+
+```{r}
+data %>% filter(is.na(date) == FALSE, borough == "MANHATTAN") %>% select(borough, date) %>% 
+  group_by(date) %>% summarise(count = n()) %>% filter(count == max(count))
+```
+* 해당 일자는 2020년 6월 1일으로, 이 당시 867건의 범죄가 발생하였습니다.
+* 2020년 6월 1일은 Manhattan 지역에서 조지 플로이드 사망 사건으로 인한 Black Lives Matter 시위가 진행되었습니다.
+* 이 수치는 해당 시위의 영향이 반영된 것으로 보입니다.
+* 해당 일자 Manhattan 지역 시위 관련 기사 [link](https://www.cnbc.com/2020/06/06/new-york-george-floyd-protest-photos-video.html)  
+#### Yearly Crime Occurrence per Borough (from 2006 to 2020)
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>%  mutate(year = as.factor(year(date))) %>% select(borough, year) %>% group_by(borough, year) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = year, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Yearly Crime Occurrence per Borough (from 2006 to 2020)") +
+  xlab("Year") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+* 각 Borough 별로 연도별 범죄 발생 건수 추세선을 그려보았습니다.
+* 범죄 발생 건수는 Brooklyn이 가장 높고, Staten Island 가 가장 낮습니다. 
+* 전체적으로 범죄의 발생 건수가 감소하고 있는 추세임을 다시 한 번 확인할 수 있습니다.
+
+
+#### Monthly Crime Occurrence per Borough (from 2006 to 2020)
+```{r, message = FALSE}
+data %>% filter(is.na(date) == FALSE & is.na(borough) == FALSE) %>%  mutate(month = as.factor(month(date))) %>% select(borough, month) %>% group_by(borough, month) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = month, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Monthly Crime Occurrence per Borough (from 2006 to 2020)") +
+  xlab("Month") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+* 이번에는 각 borough 별로 month 단위의 범죄 발생 건수 그래프를 그려 보았습니다.
+* Staten Island는 비교적 안정적인 범죄 발생 건수를 보였으며, 나머지 지역들은 기온이 상승함과 동시에 범죄 발생 건수가 늘어나는 양상을 보이고 있습니다.
+
+#### Total Number of Crimes per Hour in each Borough
+```{r, message = FALSE}
+borough_time <- data %>% select(borough, time) %>% filter(is.na(time) == FALSE & is.na(borough) == FALSE) %>% mutate(hour = as.factor(hour(time))) %>%
+  group_by(borough, hour) %>% summarise(count = n())
+
+borough_time %>% 
+  ggplot(aes(x = hour, y = count, group = borough, color = borough)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Total Number of Crimes per Hour in each Borough") +
+  xlab("Hour") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(color = "#A6A39E")
+  ) +
+  scale_color_brewer(palette = "Set2")
+```
+
+* Borough 별로 시간 당 범죄 발생 건수를 나타내는 그래프를 그랴보았습니다.
+* Staten Island를 제외한 나머지 지역은 새벽 5-6시경 범죄 발생 수가 가장 적고, 오후 3시 경에는 범죄 발생 수가 가장 많은 형태를 보이고 있습니다.
+* Statan Island의 경우는 다른 지역과 다르게 시간당 범죄의 증감 폭이 뚜렷하게 나타나지는 않습니다.
+
+#### Distribution of Levels Per Borough
+```{r, message = FALSE}
+data %>% filter(is.na(level) == FALSE & is.na(borough) == FALSE) %>% select(borough, level) %>% 
+  group_by(borough, level) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = borough, y = count, group = level, fill = level)) +
+  geom_col(position = position_dodge()) +
+  scale_fill_brewer(palette = "Pastel2") +
+  theme_minimal() +
+  ggtitle("Distribution of Levels") +
+  xlab("Level of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+* Borough별로 어떠한 level의 범죄가 가장 많이 일어나는지를 파악하기 위해 각 borough의 level별로 시각화를 진행하였습니다.
+* 모두 MISDEMEANOR의 발생 건수가 가장 많고, 그 다음으로는 FELONY가 많으며, VIOLATION의 발생 건수가 가장 적은 양상을 보이고 있습니다.
+
+#### Top 5 Types of Crimes in each Borough
+```{r}
+PlotDesc <- function(data, num){
+  mycolors <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  desc <- data %>% filter(is.na(description) == FALSE & borough == boroughs[num]) %>% select(description, borough) %>% 
+  group_by(borough, description) %>% summarise(count = n()) %>% arrange(count)
+
+  desc_plot <- desc[(nrow(desc)-4) : nrow(desc), ] %>% 
+  ggplot(aes(x = reorder(description, count), y = count)) +
+  geom_bar(stat = "identity", fill = mycolors[num]) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(sprintf("Top 5 Types of Crimes in %s", boroughs_noncap[num])) +
+  xlab("Types of Crimes") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+  )
+}
+```
+
+
+```{r, message = FALSE}
+bronx_plot <- PlotDesc(data, 1)
+brook_plot <- PlotDesc(data, 2)
+man_plot <- PlotDesc(data, 3)
+queens_plot <- PlotDesc(data, 4)
+staten_plot <- PlotDesc(data, 5)
+
+library(gridExtra)
+library(grid)
+grid.arrange(bronx_plot, brook_plot, man_plot, queens_plot, staten_plot, vp=viewport(width=1, height=1))
+```
+
+* 각 Borough 별로 가장 많이 일어난 유형의 범죄를 상위 5개씩 시각화 해 보았습니다.
+* 전체적인 상위 항목은 비슷하지만, Bronx 지역의 경우 다른 지역에는 없는 위험 약물이 상위 범죄에 rank되어 있습니다.
+
+#### Top 5 Premises in each Borough
+```{r}
+PlotPrem <- function(data, num){
+  mycolors <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  prem <- data %>% filter(is.na(premises) == FALSE & borough == boroughs[num]) %>% select(premises, borough) %>% 
+  group_by(borough, premises) %>% summarise(count = n()) %>% arrange(count)
+
+  prem_plot <- prem[(nrow(prem)-4) : nrow(prem), ] %>% 
+  ggplot(aes(x = reorder(premises, count), y = count)) +
+  geom_bar(stat = "identity", fill = mycolors[num]) +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(sprintf("Top 5 Premises in %s", boroughs_noncap[num])) +
+  xlab("Premise") +
+  ylab("Number of Crimes") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+  )
+}
+```
+
+```{r, message = FALSE}
+bronx_plot <- PlotPrem(data, 1)
+brook_plot <- PlotPrem(data, 2)
+man_plot <- PlotPrem(data, 3)
+queens_plot <- PlotPrem(data, 4)
+staten_plot <- PlotPrem(data, 5)
+
+library(gridExtra)
+grid.arrange(bronx_plot, brook_plot, man_plot, queens_plot, staten_plot, vp=viewport(width=1, height=1))
+```
+
+* 각 borough 별로 발생 빈도가 가장 높은 5개의 범죄를 그래프로 그려보았습니다.
+
+#### Distribution of Suspects and Victims
+```{r}
+PlotVicSus <- function(data, num){
+  mycolors_vic <- c("#99CC33", "#CC99CC", "#FFCC33", "#99CCFF", "#FF9999")
+  mycolors_sus <- c("#66CC99", "#993399", "#FF9900", "#6699CC", "#FF6666")
+  boroughs <- c("BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND")
+  boroughs_noncap <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island")
+  
+  vic_age_plot <- data %>% filter(is.na(victim_age) == FALSE & borough == boroughs[num]) %>% select(victim_age, borough) %>% 
+    group_by(borough, victim_age) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = victim_age, y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_age, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Age of Victims in %s", boroughs_noncap[num])) +
+    xlab("Age") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  vic_sex_plot <- data %>% filter(is.na(victim_sex) == FALSE & borough == boroughs[num]) %>% select(victim_sex, borough) %>% 
+    group_by(borough, victim_sex) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(victim_sex, -count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_sex, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Sex of Victims in %s", boroughs_noncap[num])) +
+    xlab("Sex") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  vic_race_plot <- data %>% filter(is.na(victim_race) == FALSE & borough == boroughs[num]) %>% select(victim_race, borough) %>% 
+    group_by(borough, victim_race) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(victim_race, count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_vic[num]) +
+    geom_text(aes(x = victim_race, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    coord_flip() +
+    ggtitle(sprintf("Race of Victims in %s", boroughs_noncap[num])) +
+    xlab("Race") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  
+  sus_age_plot <- data %>% filter(is.na(suspect_age) == FALSE & borough == boroughs[num]) %>% select(suspect_age, borough) %>% 
+    group_by(borough, suspect_age) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = suspect_age, y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_age, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Age of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Age") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  sus_sex_plot <- data %>% filter(is.na(suspect_sex) == FALSE & borough == boroughs[num]) %>% select(suspect_sex, borough) %>% 
+    group_by(borough, suspect_sex) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(suspect_sex, -count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_sex, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    ggtitle(sprintf("Sex of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Sex") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+  sus_race_plot <- data %>% filter(is.na(suspect_race) == FALSE & borough == boroughs[num]) %>% select(suspect_race, borough) %>% 
+    group_by(borough, suspect_race) %>% summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(suspect_race, count), y = count)) +
+    geom_bar(stat = "identity", fill = mycolors_sus[num]) +
+    geom_text(aes(x = suspect_race, y = count + sum(count)*0.035, label = percent(count/sum(count))), size = 1.5) +
+    theme_minimal() +
+    coord_flip() +
+    ggtitle(sprintf("Race of Suspects in %s", boroughs_noncap[num])) +
+    xlab("Race") +
+    ylab("Number of Crimes") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 7, face = "bold"),
+    axis.text = element_text(size = 5),
+    legend.position = "none"
+    )
+  
+   plot_combined <- grid.arrange(vic_age_plot, sus_age_plot, vic_sex_plot, sus_sex_plot, vic_race_plot, sus_race_plot, 
+                                 nrow = 3, vp=viewport(width = 1, height = 1))
+   return(plot_combined)
+}
+```
+
+```{r, message = FALSE}
+bronx_plot <- PlotVicSus(data, 1)
+brook_plot <- PlotVicSus(data, 2)
+man_plot <- PlotVicSus(data, 3)
+queens_plot <- PlotVicSus(data, 4)
+staten_plot <- PlotVicSus(data, 5)
+```
+
+* 각 borough 별로 victim과 suspect의 연령별, 성별, 인종별 분포를 시각화하였습니다.
+
+#### NYC Borough Map in Total Number of Crimes
+```{r, message = FALSE}
+library(raster)
+nybb <- shapefile("nybb.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+nybb <- fortify(nybb, region = "BoroName")
+nybb$id <- toupper(nybb$id)
+```
+
+```{r}
+borough_sum <- data %>% dplyr::select(id = borough) %>% group_by(id) %>% summarise(count = n())
+borough_sum$id <- as.character(borough_sum$id)
+```
+
+```{r}
+map_df <- merge(nybb, borough_sum, by = "id")
+
+```
+
+```{r}
+map_df %>% ggplot() +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = count), color = "white") +
+  scale_fill_gradient(low = "#FFFFCC", high = "#FF0000") +
+  theme_minimal() +
+    ggtitle("NYC Borough Map in Total Number of Crimes") +
+    xlab("Longitude") +
+    ylab("Latitude") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10)
+    )
+```
+
+* 각 borough 별 총 발생한 범죄의 건수를 지도에 시각화하였습니다. 
+
+#### NYC Precinct Map in Total Number of Crimes
+```{r, message = FALSE}
+nypp <- shapefile("nypp.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+nypp <- fortify(nypp, region = "Precinct")
+nypp
+```
+
+```{r}
+precinct_sum <- data %>% dplyr::select(id = precinct) %>% group_by(id) %>% summarise(count = n())
+precinct_sum$id <- as.character(precinct_sum$id)
+precinct_sum
+```
+```{r}
+map_df <- merge(nypp, precinct_sum, by = "id")
+map_df
+```
+
+```{r}
+map_df %>% ggplot() +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = count), color = "white") +
+  scale_fill_gradient(low = "#FFFFCC", high = "#FF0000") +
+  theme_minimal() +
+    ggtitle("NYC Precinct Map in Total Number of Crimes") +
+    xlab("Longitude") +
+    ylab("Latitude") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10)
+    )
+```
+
+* 지역을 좀 더 세분화하여, 각 precinct별로 범죄 발생 건수를 지도에 시각화하였습니다.
+* 색이 진할수록 범죄 발생 건수가 높은 것입니다.
+
+
+```{r, message = FALSE}
+DetachPkg()
+```
+
+
+코로나 19 데이터를 시각화 하기 위해 코로나 이전과 이후의 데이터를 분리하였습니다.  
+
+```{r}
+start_point <- data %>% filter(nyc_cases != 0 | us_cases != 0 | nyc_deaths != 0 | us_deaths != 0) %>% select(index) %>% min
+```
+
+```{r}
+pre_data <- data %>% filter(index < start_point)
+post_data <- data %>% filter(index >= start_point)
+```
+
+
+동기간의 비교를 위해 코로나 이전의 데이터는 2019년으로 한정하였습니다.  
+
+```{r}
+pre_data <- data %>% filter(year(date) == 2019)
+pre_data
+```
+
+```{r}
+post_data
+```
+
+#### 코로나 19 이전 및 이후의 범죄 발생 건수 비교
+```{r}
+PlotPerDay <- function(data, num){
+  base_colors <- c("#99CC33", "#CC99CC")
+  deep_colors <- c("#66CC99", "#993399")
+  years <- c("2019", "2020")
+  
+  data %>% filter(is.na(date) == FALSE) %>% select(date) %>% group_by(date) %>% summarise(count = n()) %>% 
+  ggplot(aes(x = date, y = count)) +
+  geom_line(group = 1, color = base_colors[num]) + 
+  stat_smooth(color = deep_colors[num], method = "lm") +
+  theme_minimal() +
+  ggtitle(sprintf("Daily Crime Occurrence in %s", years[num])) +
+  xlab("Date") +
+  ylab("Number of Crimes") +
+  theme(
+    plot.title = element_text(size = 13, face = "bold", hjust = 0.5, vjust = 0.5),
+    axis.title = element_text(size = 11, face = "bold")
+  )
+}
+```
+
+```{r, message = FALSE}
+pre_plot <- PlotPerDay(pre_data, 1)
+post_plot <- PlotPerDay(post_data, 2)
+grid.arrange(pre_plot, post_plot, ncol = 2, vp=viewport(width=0.9, height=0.7))
+```
+
+#### Daily Crime Occurrence and COVID-19 Cases
+```{r}
+covid_count <- post_data %>% select(date, us_cases, us_deaths, nyc_cases, nyc_deaths) %>% group_by(date) %>% 
+  summarise(us_cases = sum(us_cases), us_deaths = sum(us_deaths), nyc_cases = sum(nyc_cases), nyc_deaths = sum(nyc_deaths)) %>% 
+  filter(is.na(date) == FALSE)
+  
+crime_count <- post_data %>% select(date) %>% group_by(date) %>% summarise(crimes = n()) %>% filter(is.na(date) == FALSE)
+
+count_tmp <- full_join(covid_count, crime_count, by = "date")
+
+count_data <- reshape2::melt(count_tmp ,  id.vars = "date", variable.name = "variables")
+
+count_data %>% ggplot(aes(x = date, y = log10(value), color = variables)) +
+  geom_line() +
+  theme_minimal() +
+  ggtitle("Daily Crime Occurrence and COVID-19 Cases") +
+  xlab("Date") +
+  ylab("Counts (rescaled in log10)") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 10, face = "bold"),
+  )
+```
+
+* 코로나19 발생 이후 일별 범죄 발생 건수와 코로나19 확진자 수, 사망자 수를 함께 시각화하였습니다.
+* 범죄 발생 건수와 코로나19의 일별 확진자 수, 사망자 수는 크게 상관이 없어 보입니다.
+
+
+#### Increase Rate of Crime Occurrence in 2020
+```{r, message = FALSE}
+pre_month <- pre_data %>% select(date) %>% mutate(month = as.factor(month(date))) %>% group_by(month) %>% summarise(count = n())
+post_month <- post_data %>% select(date) %>% mutate(month = as.factor(month(date))) %>% group_by(month) %>% summarise(count = n())
+colnames(pre_month) <- c("month", "pre_count")
+colnames(post_month) <- c("month", "post_count")
+change_month <- full_join(pre_month, post_month)
+change_month$rate <- ((change_month$post_count - change_month$pre_count) / change_month$pre_count)
+change_month <- change_month %>% filter(is.na(month) == FALSE)
+```
+
+```{r}
+change_month %>% ggplot(aes(x = month, y = rate)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  theme_minimal() +
+  ggtitle("Increase Rate of Crime Occurrence in 2020") +
+  xlab("Month") +
+  ylab("Increase Rate") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 전년 동기 대비 범죄 발생 건수의 증가율을 시각화 하였습니다.
+* 1, 2월을 제외하고는 범죄가 전년도 동기간에 비해 감소한 것을 확인할 수 있습니다.
+
+#### Increase Rate of Crime Occurrence in 2020 per Boroug
+```{r, message = FALSE}
+pre_borough <- pre_data %>% select(borough) %>% group_by(borough) %>% summarise(pre_count = n())
+post_borough <- post_data %>% select(borough) %>% group_by(borough) %>% summarise(post_count = n())
+change_borough <- full_join(pre_borough, post_borough)
+change_borough$rate <- ((change_borough$post_count - change_borough$pre_count) / change_borough$pre_count)
+change_borough <- change_borough %>% filter(is.na(borough) == FALSE)
+```
+
+```{r}
+change_borough %>% ggplot(aes(x = reorder(borough, rate), y = rate, fill = borough)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  ggtitle("Increase Rate of Crime Occurrence in 2020 per Borough") +
+  xlab("Borough") +
+  ylab("Increase Rate") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* borough 별로 전년도에 비해 범죄가 얼마나 증가하였는지, 범죄 증가율 그래프를 그려보았습니다.
+* 전 지역에서 전년도에 비해 범죄가 줄어들었습니다.
+
+#### Increase Rate of Crime Occurrence in 2020 per Precinct
+```{r, message = FALSE}
+pre_precinct <- pre_data %>% select(precinct) %>% group_by(precinct) %>% summarise(pre_count = n())
+post_precinct <- post_data %>% select(precinct) %>% group_by(precinct) %>% summarise(post_count = n())
+change_precinct <- full_join(pre_precinct, post_precinct)
+change_precinct$rate <- ((change_precinct$post_count - change_precinct$pre_count) / change_precinct$pre_count)
+change_precinct <- change_precinct %>% filter(is.na(precinct) == FALSE) %>% arrange(rate)
+
+change_precinct[1:5, ] %>% rbind(change_precinct[(nrow(change_precinct)-4) : nrow(change_precinct), ])
+```
+
+```{r}
+change_precinct[1:5, ] %>% rbind(change_precinct[(nrow(change_precinct)-4) : nrow(change_precinct), ]) %>% 
+  ggplot(aes(x = reorder(precinct, -rate), y = rate, fill = precinct)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  ggtitle(label = "Increase Rate of Crime Occurrence in 2020 per Precinct", subtitle = "Top 5 and Low 5") +
+  xlab("Precinct") +
+  ylab("Increase Rate") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 13, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* Precinct를 기준으로 범죄 증가율이 가장 높은 5개 지역과 가장 낮은 5개 지역을 시각화하였습니다.
+
+#### NYC Precinct Map in Increase Rate of Crime Occurrenc
+```{r, message = FALSE}
+library(raster)
+nypp <- shapefile("nypp.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+nypp <- fortify(nypp, region = "Precinct")
+nypp
+```
+```{r}
+change_precinct <- change_precinct %>% rename(id = precinct) %>% mutate(id = as.character(id))
+```
+
+```{r}
+map_df <- merge(nypp, change_precinct, by = "id")
+```
+
+```{r}
+map_df %>% ggplot() +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = rate), color = "white") +
+  theme_minimal() +
+    ggtitle("NYC Precinct Map in Increase Rate of Crime Occurrence") +
+    xlab("Longitude") +
+    ylab("Latitude") +
+    theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10)
+    )
+```
+
+* 전체 precinct의 범죄 증가율 파악을 위해 지도 시각화를 진행하였습니다. 
+* 파란색이 진할수록 범죄가 많이 감소하였음을 나타냅니다.
+
+
+#### Top 10 Types of Crimes
+```{r, message = FALSE}
+DetachPkg()
+pre_desc <- pre_data %>% select(description) %>% group_by(description) %>%  summarise(pre_count = n())
+post_desc <- post_data %>% select(description) %>% group_by(description) %>%  summarise(post_count = n())
+change_desc <- full_join(pre_desc, post_desc)
+change_desc$rate <- (change_desc$post_count - change_desc$pre_count) / change_desc$pre_count
+change_desc <- change_desc %>% arrange(rate)
+```
+
+```{r}
+summary(pre_desc$pre_count)
+```
+
+
+```{r}
+change_desc <- change_desc %>% filter(pre_count >= 299.50) 
+
+change_desc[(nrow(change_desc)-9): nrow(change_desc),] %>% 
+  ggplot(aes(x = reorder(description, rate), y = rate)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(label = "Top 10 Types of Crimes") +
+  xlab("Types of Crimes") +
+  ylab("Increase Rate") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+* 범죄 발생 건수가 가장 많이 증가한 상위 10개의 범죄 종류를 그래프에 표현하였습니다.
+* 비율로 측정하였기 때문에 중앙값을 기준으로 총 범죄 발생 건수를 필터링한 후 시각화를 진행하였습니다.
+* Grand larency of motor vehicle, burglary가 큰 폭으로 증가한 것을 확인할 수 있습니다.
+
+#### Ratio Difference in Victim Race
+```{r, message = FALSE}
+pre_vicrace <- pre_data %>% filter(is.na(victim_race) == FALSE) %>%  select(victim_race) %>% group_by(victim_race) %>% summarise(pre_count = n()) %>% mutate(pre_ratio = pre_count / sum(pre_count))
+post_vicrace <- post_data %>% filter(is.na(victim_race) == FALSE) %>%  select(victim_race) %>% group_by(victim_race) %>% summarise(post_count = n()) %>% mutate(post_ratio = post_count / sum(post_count))
+count_vicrace <- full_join(pre_vicrace, post_vicrace)
+count_vicrace$ratio_diff <- count_vicrace$post_ratio - count_vicrace$pre_ratio
+count_vicrace %>% ggplot(aes(x = reorder(victim_race, ratio_diff), y = ratio_diff)) +
+  geom_bar(stat = "identity", fill = "#CC99CC") +
+  coord_flip() +
+  theme_minimal() +
+  ggtitle(label = "Ratio Difference in Victim Race") +
+  xlab("Race") +
+  ylab("Ratio Difference") +
+  theme(
+    panel.grid = element_line(color = "#F5F5F5"),
+    plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  )
+  
+```
+
+* victim의 인종에 따른 범죄율 변화에 대해 시각화를 진행했습니다.
+* 코로나19로 인해 아시아인에 대한 범죄의 비율이 증가하였을 것이라고 생각하였으나, 전년도에 비해 큰 차이가 없는 것을 확인할 수 있습니다.
+
