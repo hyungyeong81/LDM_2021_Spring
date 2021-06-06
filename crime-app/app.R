@@ -3,7 +3,7 @@ library(tidyverse)
 library(data.table)
 library(raster)
 setwd("/Users/hyungyeonghong/Desktop/LDM_project/crime-app")
-nyc_crimes <- fread("data/data_preprocessed_3.csv")
+nyc_crimes <- fread("data/data_shiny.csv")
 precinct_idx <- nyc_crimes %>% filter(is.na(precinct) ==  FALSE) %>% dplyr::select(precinct) %>% sapply(unique) %>% sort %>% as.character
 nyc_crimes <- nyc_crimes %>% mutate(id = as.character(precinct))
 nypp <- shapefile("data/nypp.shp") %>% spTransform(CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')) %>% fortify(nypp, region = "Precinct")
