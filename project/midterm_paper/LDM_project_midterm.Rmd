@@ -319,7 +319,7 @@ complaint_current[complaint_current==""] <- NA
 ```{r data_historicCheckNA}
 complaint_historic %>% lapply(is.na) %>% sapply(sum)
 ```
-* All the variables except the level variable has missing values.
+* All the variables except the level variable have missing values.
 * The number of missing values in suspect_age, suspect_race and suspect_sex seems quite a lot since they are more than half of the number of observations.
 
 ```{r data_currentCheckNA}
